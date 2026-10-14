@@ -235,22 +235,19 @@ dependencies {
     runtimeOnly 'org.xerial:sqlite-jdbc:3.49.1.0'
 
     // LWJGL bindings not shipped with vanilla MC (LMDB and Zstd storage backends).
-    // Both the java bindings and the natives jars are embedded; LWJGL resolves the
-    // natives through the binding class' own classloader, so the nested natives jars
-    // (published under me.cortex.vojynatives with unique group:artifact - see
-    // natives-repo/README.md) are found at runtime even though they keep the official
-    // jar contents.
+    // Both the java bindings and the natives are embedded; LWJGL resolves the natives
+    // through the binding class' own classloader, so the nested natives jar is found at
+    // runtime. The per-platform natives jars are merged into one jar per module (see
+    // natives-repo/README.md): FML identifies nested jars by their manifest
+    // Implementation-Title, and LWJGL's official natives jars share it across platforms,
+    // so embedding them separately would make FML keep only one platform.
     def lwjgl = '3.4.1' // must match the LWJGL version shipped with MC 26.1.2
     implementation "org.lwjgl:lwjgl-lmdb:${lwjgl}"
     implementation "org.lwjgl:lwjgl-zstd:${lwjgl}"
     jarJar "org.lwjgl:lwjgl-lmdb:${lwjgl}"
     jarJar "org.lwjgl:lwjgl-zstd:${lwjgl}"
-    jarJar "me.cortex.vojynatives:lwjgl-lmdb-natives-linux:${lwjgl}"
-    jarJar "me.cortex.vojynatives:lwjgl-lmdb-natives-linux-arm64:${lwjgl}"
-    jarJar "me.cortex.vojynatives:lwjgl-lmdb-natives-windows:${lwjgl}"
-    jarJar "me.cortex.vojynatives:lwjgl-zstd-natives-linux:${lwjgl}"
-    jarJar "me.cortex.vojynatives:lwjgl-zstd-natives-linux-arm64:${lwjgl}"
-    jarJar "me.cortex.vojynatives:lwjgl-zstd-natives-windows:${lwjgl}"
+    jarJar "me.cortex.vojynatives:lwjgl-lmdb-natives:${lwjgl}"
+    jarJar "me.cortex.vojynatives:lwjgl-zstd-natives:${lwjgl}"
     // Example optional mod dependency with JEI
     // The JEI API is declared for compile time use, while the full JEI artifact is used at runtime
     // compileOnly "mezz.jei:jei-${mc_version}-common-api:${jei_version}"
