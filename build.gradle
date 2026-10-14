@@ -26,6 +26,19 @@ sourceSets.main.resources {
     exclude("src/generated/**/.cache") // datagen cache files
 }
 
+// ---- JarJar (nested plain libraries) ----
+// FML supports embedding plain (non-mod) jars under META-INF/jarjar/; the moddev plugin
+// creates the `jarJar` configuration and the `jarJar` task that writes the nested jars plus
+// their metadata.json into the mod jar. LWJGL resolves its bundled natives through the
+// classloader of the binding module's own classes (LibLMDB/LibZstd pass themselves as the
+// context class to Library.loadSystem), so nested natives jars are found at runtime.
+//
+// The catch: both the metadata writer and FML's JarSelector key jars by group:artifact and
+// keep only one jar per identifier. The official natives jars share `org.lwjgl:<module>`
+// with the main jars, so the natives jars are published in the versioned `natives-repo/`
+// directory under unique `me.cortex.vojynatives:<module>-<classifier>` coordinates.
+def voxyNativesGroup = 'me.cortex.vojynatives'
+
 repositories {
     // Add here additional repositories if required by some of the dependencies below.
     // Modrinth maven, used for compat mods (sodium, iris, ...) resolved by mod id + version.
@@ -52,6 +65,21 @@ repositories {
         }
         filter {
             includeGroup "net.fabricmc"
+        }
+    }
+    // Local repository holding the LWJGL natives jars repackaged under unique coordinates
+    // (me.cortex.vojynatives:<module>-<classifier>, see natives-repo/README.md). Only jars
+    // are provided - there is deliberately no POM metadata.
+    exclusiveContent {
+        forRepository {
+            maven {
+                name = "VoxyNatives"
+                url = file('natives-repo')
+                metadataSources { artifact() }
+            }
+        }
+        filter {
+            includeGroup voxyNativesGroup
         }
     }
     mavenCentral()
@@ -186,23 +214,43 @@ dependencies {
     compileOnly "maven.modrinth:lithium:mc26.1.2-0.24.6-fabric"
 
     // ---- Bundled (jarJar) libraries, mirroring the Fabric build ----
+    // FML loads jars nested under META-INF/jarjar/ onto the plugin classpath; plain
+    // (non-mod) libraries are supported there. MC itself provides slf4j and gson, so
+    // those are not embedded. MC 26.1.2 also ships the at.yawk.lz4 fork of lz4-java
+    // (same org.lz4 packages) on the launch classpath, so org.lz4:lz4-java is not
+    // embedded either.
     implementation 'redis.clients:jedis:5.1.0'
     implementation 'org.rocksdb:rocksdbjni:10.2.1'
     implementation 'org.apache.commons:commons-pool2:2.12.0'
-    implementation 'org.lz4:lz4-java:1.8.0'
     implementation 'org.tukaani:xz:1.10'
+    // The jarJar configuration is non-transitive: jedis' org.json dependency (not
+    // provided by MC) is embedded explicitly.
+    jarJar 'redis.clients:jedis:5.1.0'
+    jarJar 'org.json:json:20231013'
+    jarJar 'org.rocksdb:rocksdbjni:10.2.1'
+    jarJar 'org.apache.commons:commons-pool2:2.12.0'
+    jarJar 'org.tukaani:xz:1.10'
+    // sqlite-jdbc stays dev-runtime-only, exactly like the Fabric build: the Distant
+    // Horizons importer logs a warning and disables itself when the driver is missing.
     runtimeOnly 'org.xerial:sqlite-jdbc:3.49.1.0'
 
     // LWJGL bindings not shipped with vanilla MC (LMDB and Zstd storage backends).
+    // Both the java bindings and the natives jars are embedded; LWJGL resolves the
+    // natives through the binding class' own classloader, so the nested natives jars
+    // (published under me.cortex.vojynatives with unique group:artifact - see
+    // natives-repo/README.md) are found at runtime even though they keep the official
+    // jar contents.
     def lwjgl = '3.4.1' // must match the LWJGL version shipped with MC 26.1.2
     implementation "org.lwjgl:lwjgl-lmdb:${lwjgl}"
     implementation "org.lwjgl:lwjgl-zstd:${lwjgl}"
-    runtimeOnly "org.lwjgl:lwjgl-lmdb:${lwjgl}:natives-linux"
-    runtimeOnly "org.lwjgl:lwjgl-zstd:${lwjgl}:natives-linux"
-    runtimeOnly "org.lwjgl:lwjgl-lmdb:${lwjgl}:natives-linux-arm64"
-    runtimeOnly "org.lwjgl:lwjgl-zstd:${lwjgl}:natives-linux-arm64"
-    runtimeOnly "org.lwjgl:lwjgl-lmdb:${lwjgl}:natives-windows"
-    runtimeOnly "org.lwjgl:lwjgl-zstd:${lwjgl}:natives-windows"
+    jarJar "org.lwjgl:lwjgl-lmdb:${lwjgl}"
+    jarJar "org.lwjgl:lwjgl-zstd:${lwjgl}"
+    jarJar "me.cortex.vojynatives:lwjgl-lmdb-natives-linux:${lwjgl}"
+    jarJar "me.cortex.vojynatives:lwjgl-lmdb-natives-linux-arm64:${lwjgl}"
+    jarJar "me.cortex.vojynatives:lwjgl-lmdb-natives-windows:${lwjgl}"
+    jarJar "me.cortex.vojynatives:lwjgl-zstd-natives-linux:${lwjgl}"
+    jarJar "me.cortex.vojynatives:lwjgl-zstd-natives-linux-arm64:${lwjgl}"
+    jarJar "me.cortex.vojynatives:lwjgl-zstd-natives-windows:${lwjgl}"
     // Example optional mod dependency with JEI
     // The JEI API is declared for compile time use, while the full JEI artifact is used at runtime
     // compileOnly "mezz.jei:jei-${mc_version}-common-api:${jei_version}"
