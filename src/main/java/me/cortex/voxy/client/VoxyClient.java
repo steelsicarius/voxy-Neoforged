@@ -135,7 +135,15 @@ public class VoxyClient {
         if (!chunk.getLevel().isClientSide()) {
             return;//Ignore integrated server side chunks
         }
-        var res = VoxelIngestService.tryAutoIngestChunk(chunk);
+        //The renderer chunk-removed event usually ingests the chunk a moment earlier; skip
+        // if that just happened so we dont voxelise the same chunk twice
+        if (IngestRetryQueue.ingestedRecently(chunk.getPos().x(), chunk.getPos().z())) {
+            return;
+        }
+        //allowNoLight: the final capture must never be lost to missing light data (the light
+        //removal is queued separately, so the data is normally still there, but if it isnt a
+        //dark section beats a hole)
+        var res = VoxelIngestService.tryAutoIngestChunk(chunk, true);
         if (chunk.getLevel() instanceof net.minecraft.client.multiplayer.ClientLevel cl) {
             IngestRetryQueue.onIngestResult(cl, chunk.getPos().x(), chunk.getPos().z(), res);
         }
