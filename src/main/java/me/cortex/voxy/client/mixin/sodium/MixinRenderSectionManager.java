@@ -65,7 +65,12 @@ public class MixinRenderSectionManager {
             if (cccm != null) {
                 var chunk = cccm.voxy$cheekyGetChunk(x, z);
                 if (chunk != null) {
-                    VoxelIngestService.tryAutoIngestChunk(chunk);
+                    voxy$handleIngestResult(x, z, VoxelIngestService.tryAutoIngestChunk(chunk));
+                } else {
+                    //The chunk left the chunk cache before we could ingest it, if it also
+                    // failed to ingest when it was added the region will have no lod data
+                    // (renders as a hole/white squares when viewed from a distance)
+                    me.cortex.voxy.client.IngestRetryQueue.onIngestFailure(x, z);
                 }
             }
         }
@@ -79,9 +84,18 @@ public class MixinRenderSectionManager {
             if (cccm != null) {
                 var chunk = cccm.getChunk(x, z, ChunkStatus.FULL, false);
                 if (chunk != null) {
-                    VoxelIngestService.tryAutoIngestChunk(chunk);
+                    voxy$handleIngestResult(x, z, VoxelIngestService.tryAutoIngestChunk(chunk));
                 }
             }
+        }
+    }
+
+    @Unique
+    private static void voxy$handleIngestResult(int x, int z, VoxelIngestService.IngestResult result) {
+        switch (result) {
+            case INGESTED -> me.cortex.voxy.client.IngestRetryQueue.onIngestSuccess(x, z);
+            case NO_LIGHT -> me.cortex.voxy.client.IngestRetryQueue.onIngestFailure(x, z);
+            case SKIPPED -> {}
         }
     }
 

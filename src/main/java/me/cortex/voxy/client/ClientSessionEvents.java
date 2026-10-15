@@ -25,5 +25,6 @@ public class ClientSessionEvents {
         inSession = false;
 
         VoxyCommon.shutdownInstance();
+        IngestRetryQueue.clear();
     }
 }

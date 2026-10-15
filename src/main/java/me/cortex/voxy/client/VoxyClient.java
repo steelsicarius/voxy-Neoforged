@@ -81,6 +81,12 @@ public class VoxyClient {
         //Fabric port: was ClientCommandRegistrationCallback.EVENT.
         NeoForge.EVENT_BUS.addListener(this::onRegisterClientCommands);
 
+        //Retry ingests that failed because the light data was not available yet, see
+        //IngestRetryQueue. Without this a chunk whose light lagged behind the chunk packet
+        //never makes it into the voxy world and the region renders as a hole/white squares
+        //when it is unloaded and viewed from a distance.
+        NeoForge.EVENT_BUS.addListener(this::onClientTick);
+
         //Fabric port: ModMenu "getModConfigScreenFactory" (ModMenuIntegration) is now a
         //NeoForge config screen extension point. It opens the Sodium video settings
         //screen with the Voxy option page, exactly like the Fabric build did.
@@ -102,6 +108,12 @@ public class VoxyClient {
         //Fabric port: was ClientCommandRegistrationCallback.EVENT.
         if (VoxyCommon.isAvailable()) {
             event.getDispatcher().register(VoxyCommands.register());
+        }
+    }
+
+    void onClientTick(net.neoforged.neoforge.client.event.ClientTickEvent.Post event) {
+        if (ClientSessionEvents.inSession && Minecraft.getInstance().level != null) {
+            IngestRetryQueue.tick(Minecraft.getInstance().level);
         }
     }
 

@@ -27,6 +27,17 @@ public class VoxelIngestService {
     private record IngestSection(int cx, int cy, int cz, WorldEngine world, LevelChunkSection section, DataLayer blockLight, DataLayer skyLight){}
     private final ConcurrentLinkedDeque<IngestSection> ingestQueue = new ConcurrentLinkedDeque<>();
 
+    //Result of an ingest attempt, used by the client to decide if a chunk needs to be
+    //retried (the client light engine may not have received/computed the light data yet
+    //when the chunk is added/removed, in which case the chunk would otherwise never make
+    //it into the voxy world, leaving a permanent hole when the chunk is unloaded).
+    public enum IngestResult {
+        INGESTED,
+        NO_LIGHT,//Chunk has non-air content but no complete lighting data was available
+        SKIPPED//Ingest disabled, engine dead or other non-retryable reason
+    }
+
+
     public VoxelIngestService(ServiceManager pool) {
         this.service = pool.createServiceNoCleanup(()->this::processJob, 5000, "Ingest service");
     }
@@ -91,9 +102,9 @@ public class VoxelIngestService {
         return true;
     }
 
-    public boolean enqueueIngest(WorldEngine engine, LevelChunk chunk) {
+    public IngestResult enqueueIngest(WorldEngine engine, LevelChunk chunk) {
         if (!this.service.isLive()) {
-            return false;
+            return IngestResult.SKIPPED;
         }
         if (!engine.isLive()) {
             throw new IllegalStateException("Tried inserting chunk into WorldEngine that was not alive");
@@ -133,10 +144,16 @@ public class VoxelIngestService {
                     break;
                 }
             }
+            //The zero-columns have been enqueued, there is nothing light-dependent left todo
+            return IngestResult.INGESTED;
         }
 
         if (!gotLighting) {
-            return false;
+            //The chunk has content but the client light engine has no complete light data for
+            //any of its sections yet (light packets lag behind the chunk packet). Ingesting now
+            //would produce data we would have to throw away, so report it back so the client can
+            //retry while the chunk is still loaded instead of never ingesting it at all.
+            return IngestResult.NO_LIGHT;
         }
 
         var blp = lightingProvider.getLayerListener(LightLayer.BLOCK);
@@ -174,7 +191,7 @@ public class VoxelIngestService {
                 break;
             }
         }
-        return true;
+        return IngestResult.INGESTED;
     }
 
     public int getTaskCount() {
@@ -191,18 +208,18 @@ public class VoxelIngestService {
     }
 
     //Utility method to ingest a chunk into the given WorldIdentifier or world
-    public static boolean tryIngestChunk(WorldIdentifier worldId, LevelChunk chunk) {
-        if (worldId == null) return false;
+    public static IngestResult tryIngestChunk(WorldIdentifier worldId, LevelChunk chunk) {
+        if (worldId == null) return IngestResult.SKIPPED;
         var instance = VoxyCommon.getInstance();
-        if (instance == null) return false;
-        if (!instance.isIngestEnabled(worldId)) return false;
+        if (instance == null) return IngestResult.SKIPPED;
+        if (!instance.isIngestEnabled(worldId)) return IngestResult.SKIPPED;
         var engine = instance.getOrCreate(worldId);
-        if (engine == null) return false;
+        if (engine == null) return IngestResult.SKIPPED;
         return instance.getIngestService().enqueueIngest(engine, chunk);
     }
 
     //Try to automatically ingest the chunk into the correct world
-    public static boolean tryAutoIngestChunk(LevelChunk chunk) {
+    public static IngestResult tryAutoIngestChunk(LevelChunk chunk) {
         return tryIngestChunk(WorldIdentifier.of(chunk.getLevel()), chunk);
     }
 

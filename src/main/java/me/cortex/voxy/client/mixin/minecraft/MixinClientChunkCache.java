@@ -43,7 +43,12 @@ public class MixinClientChunkCache implements ICheekyClientChunkCache {
         if (VoxyConfig.CONFIG.ingestEnabled && BOBBY_INSTALLED) {
             var chunk = this.voxy$cheekyGetChunk(pos.x(), pos.z());
             if (chunk != null) {
-                VoxelIngestService.tryAutoIngestChunk(chunk);
+                var res = VoxelIngestService.tryAutoIngestChunk(chunk);
+                if (res == VoxelIngestService.IngestResult.INGESTED) {
+                    me.cortex.voxy.client.IngestRetryQueue.onIngestSuccess(pos.x(), pos.z());
+                } else if (res == VoxelIngestService.IngestResult.NO_LIGHT) {
+                    me.cortex.voxy.client.IngestRetryQueue.onIngestFailure(pos.x(), pos.z());
+                }
             }
         }
     }
