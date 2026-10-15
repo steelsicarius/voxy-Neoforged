@@ -7,6 +7,8 @@ import me.cortex.voxy.commonImpl.VoxyCommon;
 import net.caffeinemc.mods.sodium.client.config.ConfigManager;
 import net.caffeinemc.mods.sodium.client.config.structure.OptionPage;
 import net.caffeinemc.mods.sodium.client.gui.VideoSettingsScreen;
+import me.cortex.voxy.client.config.VoxyConfig;
+import me.cortex.voxy.common.world.service.VoxelIngestService;
 import net.minecraft.client.Minecraft;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
@@ -87,6 +89,12 @@ public class VoxyClient {
         //when it is unloaded and viewed from a distance.
         NeoForge.EVENT_BUS.addListener(this::onClientTick);
 
+        //Ingest the final state of a chunk right before it leaves the client chunk cache.
+        //Fired from ClientChunkCache.drop, so the chunk is still fully readable here. This
+        //was previously only done when bobby was installed, which left holes for chunks
+        //whose add-time ingest had failed.
+        NeoForge.EVENT_BUS.addListener(this::onChunkUnload);
+
         //Fabric port: ModMenu "getModConfigScreenFactory" (ModMenuIntegration) is now a
         //NeoForge config screen extension point. It opens the Sodium video settings
         //screen with the Voxy option page, exactly like the Fabric build did.
@@ -117,6 +125,21 @@ public class VoxyClient {
         }
     }
 
+    //Captures the final state of a chunk right before it leaves the client chunk cache
+    //(fired from ClientChunkCache.drop where the chunk is still fully readable)
+    void onChunkUnload(net.neoforged.neoforge.event.level.ChunkEvent.Unload event) {
+        if (!ClientSessionEvents.inSession || !VoxyConfig.CONFIG.ingestEnabled) {
+            return;
+        }
+        var chunk = event.getChunk();
+        if (!chunk.getLevel().isClientSide()) {
+            return;//Ignore integrated server side chunks
+        }
+        var res = VoxelIngestService.tryAutoIngestChunk(chunk);
+        if (chunk.getLevel() instanceof net.minecraft.client.multiplayer.ClientLevel cl) {
+            IngestRetryQueue.onIngestResult(cl, chunk.getPos().x(), chunk.getPos().z(), res);
+        }
+    }
     //Kept for source/behaviour compatibility with the Fabric build.
     @SuppressWarnings("unused")
     private static void frexHook(Consumer<Function<String, Consumer<Boolean>>> api) {

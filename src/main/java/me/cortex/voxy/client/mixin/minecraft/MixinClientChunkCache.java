@@ -1,24 +1,17 @@
 package me.cortex.voxy.client.mixin.minecraft;
 
 import me.cortex.voxy.client.ICheekyClientChunkCache;
-import me.cortex.voxy.client.config.VoxyConfig;
-import me.cortex.voxy.common.world.service.VoxelIngestService;
-import net.neoforged.fml.ModList;
 import net.minecraft.client.multiplayer.ClientChunkCache;
-import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.chunk.LevelChunk;
 import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.Unique;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+//Provides access to chunks in the client chunk cache without the in-range check.
+//The unload capture of chunks happens in VoxyClient via ChunkEvent.Unload (which
+//ClientChunkCache.drop fires while the chunk is still fully readable).
 @Mixin(ClientChunkCache.class)
 public class MixinClientChunkCache implements ICheekyClientChunkCache {
-    @Unique
-    private static final boolean BOBBY_INSTALLED = ModList.get().isLoaded("bobby");
 
     @Shadow
     private volatile ClientChunkCache.Storage storage;
@@ -36,20 +29,5 @@ public class MixinClientChunkCache implements ICheekyClientChunkCache {
         }
         //Otherwise return null
         return null;
-    }
-
-    @Inject(method = "drop", at = @At("HEAD"))
-    public void voxy$captureChunkBeforeUnload(ChunkPos pos, CallbackInfo ci) {
-        if (VoxyConfig.CONFIG.ingestEnabled && BOBBY_INSTALLED) {
-            var chunk = this.voxy$cheekyGetChunk(pos.x(), pos.z());
-            if (chunk != null) {
-                var res = VoxelIngestService.tryAutoIngestChunk(chunk);
-                if (res == VoxelIngestService.IngestResult.INGESTED) {
-                    me.cortex.voxy.client.IngestRetryQueue.onIngestSuccess(pos.x(), pos.z());
-                } else if (res == VoxelIngestService.IngestResult.NO_LIGHT) {
-                    me.cortex.voxy.client.IngestRetryQueue.onIngestFailure(pos.x(), pos.z());
-                }
-            }
-        }
     }
 }

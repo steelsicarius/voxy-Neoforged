@@ -67,10 +67,9 @@ public class MixinRenderSectionManager {
                 if (chunk != null) {
                     voxy$handleIngestResult(x, z, VoxelIngestService.tryAutoIngestChunk(chunk));
                 } else {
-                    //The chunk left the chunk cache before we could ingest it, if it also
-                    // failed to ingest when it was added the region will have no lod data
-                    // (renders as a hole/white squares when viewed from a distance)
-                    me.cortex.voxy.client.IngestRetryQueue.onIngestFailure(x, z);
+                    //The chunk left the chunk cache before we could ingest it. The final
+                    // capture happens in the ChunkEvent.Unload listener in VoxyClient, and
+                    // the periodic sweep in IngestRetryQueue covers anything that was missed.
                 }
             }
         }
@@ -91,12 +90,8 @@ public class MixinRenderSectionManager {
     }
 
     @Unique
-    private static void voxy$handleIngestResult(int x, int z, VoxelIngestService.IngestResult result) {
-        switch (result) {
-            case INGESTED -> me.cortex.voxy.client.IngestRetryQueue.onIngestSuccess(x, z);
-            case NO_LIGHT -> me.cortex.voxy.client.IngestRetryQueue.onIngestFailure(x, z);
-            case SKIPPED -> {}
-        }
+    private void voxy$handleIngestResult(int x, int z, VoxelIngestService.IngestResult result) {
+        me.cortex.voxy.client.IngestRetryQueue.onIngestResult(this.level, x, z, result);
     }
 
 
