@@ -26,6 +26,16 @@ Port of Voxy — a far-distance (LoD) rendering mod for Minecraft — from Fabri
 - Menú de configuración vía API de Sodium (`@ConfigEntryPointForge`), equivalente al
   entrypoint de Fabric `sodium:config_api_user`; pantalla registrada además como
   `IConfigScreenFactory`.
+- Huecos/cuadros blancos al alejarse: corregidos con tres mecanismos en
+  `IngestRetryQueue` + `VoxyClient`:
+  1. Reintento del ingest cuando la luz del cliente aún no está disponible (la luz viaja
+     en una cola que se procesa a ritmo limitado por tick; antes el fallo era silencioso
+     y el chunk nunca entraba en el mundo voxy).
+  2. Captura incondicional del estado final del chunk en `ChunkEvent.Unload` (antes solo
+     con Bobby instalado).
+  3. Barrido de conciliación cada 3 s de todos los chunks cargados alrededor del jugador
+     (radio = render distance de vanilla), para que todo alrededor quede generado y
+     guardado aunque los eventos se pierdan.
 - Pendiente: prueba visual del cliente (`runClient` necesita display; este host no tiene
   Xvfb y sin sudo no se puede instalar).
 
