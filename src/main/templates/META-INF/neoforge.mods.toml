@@ -1,0 +1,84 @@
+# This is the neoforge.mods.toml for the Voxy NeoForge port.
+# The overall format is standard TOML format, v0.5.0.
+
+# The license for you mod. This is mandatory metadata and allows for easier comprehension of your redistributive properties.
+license="${mod_license}"
+
+[[mods]] #mandatory
+
+# The modid of the mod
+modId="${mod_id}" #mandatory
+
+# The version number of the mod
+version="${mod_version}" #mandatory
+
+# A display name for the mod
+displayName="${mod_name}" #mandatory
+
+# A file name (in the root of the mod JAR) containing a logo for display
+logoFile="assets/voxy/icon.png" #optional
+
+# The authors of the mod, displayed in the mod UI (optional)
+authors="Cortex"
+
+# The description text for the mod (multi line!) (#mandatory)
+description='''
+Far distance rendering mod utilising LoDs
+'''
+
+# The [[mixins]] block allows you to declare your mixin config to FML so that it gets loaded.
+# The client-only mixins live in the "client" section of client.voxy.mixins.json, so it is
+# safe to register that config on both physical sides.
+[[mixins]]
+config="client.voxy.mixins.json"
+
+[[mixins]]
+config="common.voxy.mixins.json"
+
+# The [[accessTransformers]] block allows you to declare where your AT file is.
+# This is the NeoForge equivalent of Fabric's voxy.accesswidener.
+[[accessTransformers]]
+file="META-INF/accesstransformer.cfg"
+
+# A dependency - use the . to indicate dependency for a specific modid. Dependencies are optional.
+[[dependencies.${mod_id}]] #optional
+    # the modid of the dependency
+    modId="neoforge" #mandatory
+    # The type of the dependency. Can be one of "required", "optional", "incompatible" or "discouraged" (case insensitive).
+    # 'required' requires the mod to exist, 'optional' does not
+    # 'incompatible' will prevent the game from loading when the mod exists, and 'discouraged' will show a warning
+    type="required" #mandatory
+    # Optional field describing why the dependency is required or why it is incompatible
+    # reason="..."
+    # The version range of the dependency
+    versionRange="[${neo_version},)" #mandatory
+    # An ordering relationship for the dependency.
+    # BEFORE - This mod is loaded BEFORE the dependency
+    # AFTER - This mod is loaded AFTER the dependency
+    ordering="NONE"
+    # Side this dependency is applied on - BOTH, CLIENT, or SERVER
+    side="BOTH"
+
+[[dependencies.${mod_id}]]
+    modId="minecraft"
+    type="required"
+    # This version range declares a minimum of the current minecraft version up to but not including the next major version
+    versionRange="${minecraft_version_range}"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.${mod_id}]]
+    modId="sodium"
+    type="required"
+    # Voxy integrates deeply with Sodium's renderer and requires it on the client.
+    versionRange="[0.9.1,)"
+    ordering="AFTER"
+    side="CLIENT"
+
+# Breaks: voxyworldgenv2 =2.2.2 (from fabric.mod.json)
+[[dependencies.${mod_id}]]
+    modId="voxyworldgenv2"
+    type="incompatible"
+    versionRange="[2.2.2]"
+    ordering="NONE"
+    side="BOTH"
