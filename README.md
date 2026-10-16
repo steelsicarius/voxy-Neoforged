@@ -1,8 +1,9 @@
 # Voxy (NeoForge port)
 
 Port of Voxy — a far-distance (LoD) rendering mod for Minecraft — from Fabric
-(MC 26.1.x, origin tree `voxy-2612/`, read-only) to **NeoForge 26.1.2**.
+(MC 26.1.x, origin tree `voxy-2612/`, read-only) to **NeoForge 26.2**.
 
+- MC 26.2 / NeoForge 26.2.0.90 / Sodium mc26.2-0.9.2-neoforge (mismo plugin moddev 2.0.148 que 26.1.2).
 - Build: `JAVA_HOME=/usr/java/jdk-25-oracle-aarch64 ./gradlew build`
 - Run client: `JAVA_HOME=/usr/java/jdk-25-oracle-aarch64 ./gradlew runClient`
   (dev runs use the local run/ directory).
