@@ -241,7 +241,7 @@ dependencies {
     // natives-repo/README.md): FML identifies nested jars by their manifest
     // Implementation-Title, and LWJGL's official natives jars share it across platforms,
     // so embedding them separately would make FML keep only one platform.
-    def lwjgl = '3.4.1' // must match the LWJGL version shipped with MC 26.1.2
+    def lwjgl = '3.4.3' // must match the LWJGL version shipped with MC 26.3
     implementation "org.lwjgl:lwjgl-lmdb:${lwjgl}"
     implementation "org.lwjgl:lwjgl-zstd:${lwjgl}"
     jarJar "org.lwjgl:lwjgl-lmdb:${lwjgl}"

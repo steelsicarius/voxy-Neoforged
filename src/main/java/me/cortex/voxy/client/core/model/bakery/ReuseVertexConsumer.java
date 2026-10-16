@@ -83,6 +83,11 @@ public final class ReuseVertexConsumer implements VertexConsumer {
     }
 
     @Override
+    public ReuseVertexConsumer setUv3(float u, float v) {
+        return this;
+    }
+
+    @Override
     public ReuseVertexConsumer setNormal(float x, float y, float z) {
         return this;
     }
@@ -104,7 +109,8 @@ public final class ReuseVertexConsumer implements VertexConsumer {
     }
 
     public ReuseVertexConsumer quad(BakedQuad quad, int metadata) {
-        this.anyShaded |= quad.materialInfo().shade();
+        //MC 26.3: MaterialInfo.shade() was removed, all quads are now directionally shaded
+        this.anyShaded |= true;
         this.anyDarkendTex |= quad.materialInfo().sprite().contents().mipmapStrategy == MipmapStrategy.DARK_CUTOUT;
         this.ensureCanPut();
         for (int i = 0; i < 4; i++) {

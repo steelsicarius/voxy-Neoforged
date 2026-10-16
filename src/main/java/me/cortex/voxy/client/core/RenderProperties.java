@@ -1,7 +1,7 @@
 package me.cortex.voxy.client.core;
 
-import com.mojang.blaze3d.pipeline.DepthStencilState;
-import com.mojang.blaze3d.platform.CompareOp;
+import com.mojang.renderpearl.api.pipeline.DepthStencilState;
+import com.mojang.renderpearl.api.pipeline.CompareOp;
 import com.mojang.blaze3d.systems.RenderSystem;
 import me.cortex.voxy.client.core.gl.shader.Shader;
 import me.cortex.voxy.client.core.util.IrisUtil;
@@ -65,7 +65,7 @@ public record RenderProperties(boolean isZero2One, boolean isReverseZ, boolean u
 
     public static RenderProperties getRenderProperties() {
         RenderProperties properties = new RenderProperties(
-                RenderSystem.getDevice().isZZeroToOne(),
+                RenderSystem.getDevice().getDeviceInfo().isZZeroToOne(),
                 useReverseZ(),
                 false);
 

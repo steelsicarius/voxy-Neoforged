@@ -1,7 +1,7 @@
 package me.cortex.voxy.client.core;
 
-import com.mojang.blaze3d.opengl.GlConst;
-import com.mojang.blaze3d.opengl.GlStateManager;
+import com.mojang.renderpearl.backend.opengl.GlConst;
+import com.mojang.renderpearl.backend.opengl.GlStateManager;
 import me.cortex.voxy.client.TimingStatistics;
 import me.cortex.voxy.client.VoxyClient;
 import me.cortex.voxy.client.config.VoxyConfig;
@@ -92,7 +92,7 @@ public class VoxyRenderSystem {
         if (Minecraft.getInstance().options.renderDistance().get()<3) {
             String msg = "Voxy: Having a vanilla render distance of 2 can cause rare culling near the edge of your screen issues, please use 3 or more";
             Logger.warn(msg);
-            Minecraft.getInstance().getChatListener().handleSystemMessage(Component.literal(msg), false);
+            Minecraft.getInstance().gui.chatListener().handleSystemMessage(Component.literal(msg), false);
         }
 
         //Fking HATE EVERYTHING AAAAAAAAAAAAAAAA
@@ -367,7 +367,7 @@ public class VoxyRenderSystem {
             glBlendEquation(GL_FUNC_ADD);
             GlStateManager._blendFuncSeparate(0,0, 0, 0);
             glBlendFunc(0, 0);
-            GlStateManager._disableBlend();
+            GlStateManager._disableBlend(0);
             glDisable(GL_BLEND);
             GlStateManager._depthFunc(GL_LESS);
             glDepthFunc(GL_LESS);
@@ -458,7 +458,7 @@ public class VoxyRenderSystem {
         nearVoxy = VoxyClient.disableSodiumChunkRender()?0.1f:nearVoxy;
 
         return base.mulLocal(
-                Minecraft.getInstance().gameRenderer.getGameRenderState().levelRenderState.cameraRenderState.projectionMatrix.invert(new Matrix4f()),
+                Minecraft.getInstance().gameRenderer.gameRenderState().levelRenderState.cameraRenderState.projectionMatrix.invert(new Matrix4f()),
                 new Matrix4f()
         ).mulLocal(makeProjectionMatrix(nearVoxy, 16*3000));
     }*/
@@ -466,7 +466,7 @@ public class VoxyRenderSystem {
     private static Matrix4f computeProjectionMat(RenderProperties properties, Matrix4fc base) {
 
         //this jank is to capture the extra crap they inject like viewbobbing
-        var rawMCProj = Minecraft.getInstance().gameRenderer.getGameRenderState().levelRenderState.cameraRenderState.projectionMatrix;
+        var rawMCProj = Minecraft.getInstance().gameRenderer.gameRenderState().levelRenderState.cameraRenderState.projectionMatrix;
         var extraProjection = rawMCProj.invert(new Matrix4f()).mul(base);
 
         float near = getRenderDistance()<=32.0f?8f:16f;
