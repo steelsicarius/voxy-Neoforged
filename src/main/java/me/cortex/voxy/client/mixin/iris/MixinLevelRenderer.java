@@ -36,10 +36,10 @@ public class MixinLevelRenderer {
             var renderer = IVoxyRenderSystemHolder.getNullableHolder();
             if (renderer != null) {
                 //Fixthe fucking viewport dims, fuck iris
-                glViewport(0,0, Minecraft.getInstance().getMainRenderTarget().width, Minecraft.getInstance().getMainRenderTarget().height);
+                glViewport(0,0, Minecraft.getInstance().gameRenderer.mainRenderTarget().width, Minecraft.getInstance().gameRenderer.mainRenderTarget().height);
 
                 var pos = cameraState.pos;
-                IrisUtil.CAPTURED_VIEWPORT_PARAMETERS = new IrisUtil.CapturedViewportParameters(new ChunkRenderMatrices(cameraState.projectionMatrix, cameraState.viewRotationMatrix), ((GameRendererStorage)this.minecraft.gameRenderer).sodium$getFogParameters(), Minecraft.getInstance().getMainRenderTarget().width, Minecraft.getInstance().getMainRenderTarget().height, pos.x, pos.y, pos.z);
+                IrisUtil.CAPTURED_VIEWPORT_PARAMETERS = new IrisUtil.CapturedViewportParameters(new ChunkRenderMatrices(cameraState.projectionMatrix, cameraState.viewRotationMatrix), ((GameRendererStorage)this.minecraft.gameRenderer).sodium$getFogParameters(), Minecraft.getInstance().gameRenderer.mainRenderTarget().width, Minecraft.getInstance().gameRenderer.mainRenderTarget().height, pos.x, pos.y, pos.z);
             }
         }
     }

@@ -97,6 +97,11 @@ public class WorldImporter implements IDataImporter {
             }
 
             @Override
+            public void forEachInPalette(Consumer<Holder<Biome>> consumer) {
+                consumer.accept(defaultBiome);
+            }
+
+            @Override
             public void count(PalettedContainer.CountConsumer<Holder<Biome>> counter) {
                 counter.accept(defaultBiome, 1);
             }
