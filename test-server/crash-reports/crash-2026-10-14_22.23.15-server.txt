@@ -1,0 +1,76 @@
+---- Minecraft Crash Report ----
+// You should try our sister game, Minceraft!
+
+Time: 2026-10-14 22:23:15
+Description: Exception in server tick loop
+
+java.lang.IllegalStateException: Failed to initialize server
+	at TRANSFORMER/minecraft@26.1.2/net.minecraft.server.MinecraftServer.runServer(MinecraftServer.java:736) [minecraft-server-patched-26.1.2.114.jar:?] {neoforge:access_transformer}
+	at TRANSFORMER/minecraft@26.1.2/net.minecraft.server.MinecraftServer.lambda$spin$0(MinecraftServer.java:300) [minecraft-server-patched-26.1.2.114.jar:?] {neoforge:access_transformer}
+	at java.base/java.lang.Thread.run(Thread.java:1474) [?:?] {}
+
+
+A detailed walkthrough of the error, its code path and all known details is as follows:
+---------------------------------------------------------------------------------------
+
+-- System Details --
+Details:
+	Minecraft Version: 26.1.2
+	Minecraft Version ID: 26.1.2
+	Operating System: Linux (aarch64) version 5.15.0-316.196.4.1.el9uek.aarch64
+	Java Version: 25.0.4.1, Oracle Corporation
+	Java VM Version: Java HotSpot(TM) 64-Bit Server VM (mixed mode, sharing), Oracle Corporation
+	Memory: 331509336 bytes (316 MiB) / 478150656 bytes (456 MiB) up to 6018826240 bytes (5740 MiB)
+	Memory (heap): init: 360MiB, used: 139MiB, committed: 456MiB, max: 5740MiB
+	Memory (non-head): init: 007MiB, used: 133MiB, committed: 134MiB, max: 000MiB
+	CPUs: 4
+	Processor Vendor: ARM
+	Processor Name: Neoverse-N1
+	Identifier: ARM Family 8 Model 0xd0c Stepping r3p1
+	Microarchitecture: unknown
+	Frequency (GHz): -0.00
+	Number of physical packages: 1
+	Number of physical CPUs: 4
+	Number of logical CPUs: 4
+	Graphics card #0 name: Virtio 1.0 GPU
+	Graphics card #0 vendor: Red Hat, Inc.
+	Graphics card #0 VRAM (MiB): 0.00
+	Graphics card #0 deviceId: unknown
+	Graphics card #0 versionInfo: version: 01
+	Virtual memory max (MiB): 16594.78
+	Virtual memory used (MiB): 14066.37
+	Swap memory total (MiB): 5120.00
+	Swap memory used (MiB): 837.30
+	Space in storage for jna.tmpdir (MiB): <path not set>
+	Space in storage for org.lwjgl.system.SharedLibraryExtractPath (MiB): <path not set>
+	Space in storage for io.netty.native.workdir (MiB): <path not set>
+	Space in storage for java.io.tmpdir (MiB): available: 126913.95, total: 187224.00
+	Space in storage for workdir (MiB): available: 126913.95, total: 187224.00
+	JVM Flags: 0 total; 
+	Debug Flags: 0 total; 
+	Server Running: true
+	Active Data Packs: vanilla, mod_data, mod/neoforge, mod/voxy
+	Available Data Packs: minecart_improvements, redstone_experiments, trade_rebalance, vanilla, mod/neoforge, mod/voxy, mod_data
+	Enabled Feature Flags: minecraft:vanilla
+	World Generation: Stable
+	World Seed: 4295442789642424661
+	Suppressed Exceptions: ~~NONE~~
+	Is Modded: Definitely; Server brand changed to 'neoforge'
+	Type: Dedicated Server
+	Class Processors: 
+		00.00%: neoforge:computing_frames (marker)
+		00.00%: neoforge:runtime_enum_extender
+		04.40%: neoforge:access_transformer
+		00.10%: neoforge:mixin
+		00.00%: neoforge:simple_processors_default (marker)
+		00.02%: neoforge.coremods:field_to_getter.net.minecraft.world.level.biome.biome
+		00.02%: neoforge.coremods:field_to_getter.net.minecraft.world.level.block.flowerpotblock
+		00.02%: neoforge.coremods:field_to_getter.net.minecraft.world.level.levelgen.structure.structure
+		00.37%: neoforge.coremods:method_redirector
+	Mod List: 
+		minecraft-server-patched-26.1.2.114.jar           |Minecraft                     |minecraft                     |26.1.2              |Manifest: c8e71f9a1c512b008462a3bc75d1ccbc31ffe5737ac39b5c9b3dc8b4f2867aa8
+		neoforge-26.1.2.114-universal.jar                 |NeoForge                      |neoforge                      |26.1.2.114          |Manifest: 72280019afecf55b4c9d1c1ec0b929aa07ee7d5885ac5950939494bfa7600750
+		voxy-0.2.18-beta.jar                              |Voxy                          |voxy                          |0.2.18-beta         |Manifest: 8ce2640b39b5c165a2be8fb0372a49aaa5142a6a77525c5437b2274ab467dc08
+	Crash Report UUID: 8d88309c-a973-47ed-a028-84239dc99842
+	FML: 11.0.15
+	NeoForge: 26.1.2.114

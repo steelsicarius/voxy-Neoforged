@@ -8,7 +8,7 @@ import me.cortex.voxy.client.core.SSAO;
 import me.cortex.voxy.common.Logger;
 import me.cortex.voxy.common.util.cpu.CpuLayout;
 import me.cortex.voxy.commonImpl.VoxyCommon;
-import net.neoforged.fml.loading.FMLPaths;
+import net.fabricmc.loader.api.FabricLoader;
 
 import java.io.FileReader;
 import java.io.IOException;
@@ -94,7 +94,9 @@ public class VoxyConfig {
     }
 
     private static Path getConfigPath() {
-        return FMLPaths.CONFIGDIR.get().resolve("voxy-config.json");
+        return FabricLoader.getInstance()
+                .getConfigDir()
+                .resolve("voxy-config.json");
     }
 
     public boolean isRenderingEnabled() {

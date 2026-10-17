@@ -1,0 +1,76 @@
+[14Oct2026 22:32:53.354] [main/INFO] [net.neoforged.fml.startup.Entrypoint/]: JVM Uptime at startup: 65ms
+[14Oct2026 22:32:53.364] [main/INFO] [net.neoforged.fml.loading.FMLLoader/]: Starting FancyModLoader version 11.0.15 (DEDICATED_SERVER in PROD)
+[14Oct2026 22:32:53.364] [main/INFO] [net.neoforged.fml.loading.FMLLoader/]: Game directory: /home/goose/proyectos/voxy/test-server
+[14Oct2026 22:32:53.421] [main/INFO] [net.neoforged.fml.loading.EarlyServiceDiscovery/]: Found 2 early service jars (out of 68) in 20ms
+[14Oct2026 22:32:53.421] [main/INFO] [net.neoforged.fml.loading.FMLLoader/]: Loading FML Early Services:
+[14Oct2026 22:32:53.422] [main/INFO] [net.neoforged.fml.loading.FMLLoader/]:  - libraries/net/neoforged/fancymodloader/earlydisplay/11.0.15/earlydisplay-11.0.15.jar
+[14Oct2026 22:32:53.423] [main/INFO] [net.neoforged.fml.loading.FMLLoader/]:  - libraries/net/neoforged/fancymodloader/loader/11.0.15/loader-11.0.15.jar
+[14Oct2026 22:32:53.429] [main/INFO] [net.neoforged.fml.loading.ImmediateWindowHandler/]: Not loading early display in headless mode.
+[14Oct2026 22:32:53.447] [main/INFO] [net.neoforged.fml.loading.moddiscovery.locators.GameLocator/]: Failed to find common Minecraft classes and resources on the classpath. Assuming we're launching production.
+[14Oct2026 22:32:54.011] [main/INFO] [net.neoforged.fml.loading.moddiscovery.locators.JarInJarDependencyLocator/]: Found 11 dependencies adding them to mods collection
+[14Oct2026 22:32:54.014] [main/INFO] [net.neoforged.fml.loading.moddiscovery.ModDiscoverer/]: 
+     Mod List:
+		Name Version (Mod Id)
+
+		Minecraft 26.1.2 (minecraft)
+		NeoForge 26.1.2.114 (neoforge)
+		Voxy 0.2.18-beta (voxy)
+[14Oct2026 22:32:54.181] [main/INFO] [mixin/]: SpongePowered MIXIN Subsystem Version=0.8.7 Source=file:/home/goose/proyectos/voxy/test-server/libraries/net/fabricmc/sponge-mixin/0.17.4+mixin.0.8.7/sponge-mixin-0.17.4+mixin.0.8.7.jar Service=FML Env=SERVER
+[14Oct2026 22:32:54.215] [main/INFO] [net.neoforged.fml.loading.FMLLoader/]: Loading FML Plugins:
+[14Oct2026 22:32:54.215] [main/INFO] [net.neoforged.fml.loading.FMLLoader/]:  - mods/voxy-0.2.18-beta.jar > commons-pool2-2.12.0.jar
+[14Oct2026 22:32:54.217] [main/INFO] [net.neoforged.fml.loading.FMLLoader/]:  - mods/voxy-0.2.18-beta.jar > rocksdbjni-10.2.1.jar
+[14Oct2026 22:32:54.217] [main/INFO] [net.neoforged.fml.loading.FMLLoader/]:  - mods/voxy-0.2.18-beta.jar > lwjgl-zstd-natives-3.4.1.jar
+[14Oct2026 22:32:54.217] [main/INFO] [net.neoforged.fml.loading.FMLLoader/]:  - mods/voxy-0.2.18-beta.jar > lwjgl-lmdb-natives-3.4.1.jar
+[14Oct2026 22:32:54.217] [main/INFO] [net.neoforged.fml.loading.FMLLoader/]:  - mods/voxy-0.2.18-beta.jar > json-20231013.jar
+[14Oct2026 22:32:54.218] [main/INFO] [net.neoforged.fml.loading.FMLLoader/]:  - mods/voxy-0.2.18-beta.jar > xz-1.10.jar
+[14Oct2026 22:32:54.218] [main/INFO] [net.neoforged.fml.loading.FMLLoader/]:  - mods/voxy-0.2.18-beta.jar > jedis-5.1.0.jar
+[14Oct2026 22:32:54.218] [main/INFO] [net.neoforged.fml.loading.FMLLoader/]:  - mods/voxy-0.2.18-beta.jar > lwjgl-zstd-3.4.1.jar
+[14Oct2026 22:32:54.218] [main/INFO] [net.neoforged.fml.loading.FMLLoader/]:  - mods/voxy-0.2.18-beta.jar > lwjgl-lmdb-3.4.1.jar
+[14Oct2026 22:32:54.219] [main/INFO] [net.neoforged.fml.loading.FMLLoader/]:  - ~libraries/net/neoforged/neoforge/26.1.2.114/neoforge-26.1.2.114-universal.jar > net.neoforged.neoforge-coremods-26.1.2.114.jar
+[14Oct2026 22:32:54.397] [main/INFO] [net.neoforged.fml.loading.FMLLoader/]: Building game content classloader:
+ - minecraft (jar(~libraries/net/neoforged/minecraft-server-patched/26.1.2.114/minecraft-server-patched-26.1.2.114.jar))
+ - mixinextras.neoforge (jar(~libraries/net/neoforged/neoforge/26.1.2.114/neoforge-26.1.2.114-universal.jar > mixinextras-neoforge-0.5.5.jar))
+ - neoforge (jar(~libraries/net/neoforged/neoforge/26.1.2.114/neoforge-26.1.2.114-universal.jar))
+ - net.neoforged.fml.generated (empty(VirtualJar/net.neoforged.fml.generated))
+ - voxy (jar(mods/voxy-0.2.18-beta.jar))
+[14Oct2026 22:32:54.410] [main/INFO] [net.neoforged.fml.loading.FMLLoader/]: Built game content classloader in 22ms
+[14Oct2026 22:32:55.162] [main/INFO] [MixinExtras|Service/]: Initializing MixinExtras via com.llamalad7.mixinextras.service.MixinExtrasServiceImpl(version=0.5.5).
+[14Oct2026 22:33:00.499] [modloading-worker-0/INFO] [Voxy/]: [me.cx.vy.cn.cg.Serialization]: Registered Config as LZ4 for config type CompressorConfig
+[14Oct2026 22:33:00.502] [modloading-worker-0/INFO] [Voxy/]: [me.cx.vy.cn.cg.Serialization]: Registered Config as ZSTD for config type CompressorConfig
+[14Oct2026 22:33:00.504] [modloading-worker-0/INFO] [Voxy/]: [me.cx.vy.cn.cg.Serialization]: Registered Config as Serializer for config type SectionStorageConfig
+[14Oct2026 22:33:00.505] [modloading-worker-0/INFO] [net.neoforged.neoforge.common.NeoForgeMod/NEOFORGE-MOD]: NeoForge mod loading, version 26.1.2.114, for MC 26.1.2
+[14Oct2026 22:33:00.506] [modloading-worker-0/INFO] [Voxy/]: [me.cx.vy.cn.cg.Serialization]: Registered Config as Memory for config type StorageConfig
+[14Oct2026 22:33:00.509] [modloading-worker-0/INFO] [Voxy/]: [me.cx.vy.cn.cg.Serialization]: Registered Config as LMDB for config type StorageConfig
+[14Oct2026 22:33:00.511] [modloading-worker-0/INFO] [Voxy/]: [me.cx.vy.cn.cg.Serialization]: Registered BasicPathInsertionConfig as BasicPathConfig for config type StorageConfig
+[14Oct2026 22:33:00.512] [modloading-worker-0/INFO] [Voxy/]: [me.cx.vy.cn.cg.Serialization]: Registered Config as CompressionAdaptor for config type StorageConfig
+[14Oct2026 22:33:00.512] [modloading-worker-0/INFO] [Voxy/]: [me.cx.vy.cn.cg.Serialization]: Registered ConditionalStorageBackendConfig as ConditionalConfig for config type StorageConfig
+[14Oct2026 22:33:00.513] [modloading-worker-0/INFO] [Voxy/]: [me.cx.vy.cn.cg.Serialization]: Registered Config as FragmentationAdaptor for config type StorageConfig
+[14Oct2026 22:33:00.514] [modloading-worker-0/INFO] [Voxy/]: [me.cx.vy.cn.cg.Serialization]: Registered Config2 as AutoFragmentationAdaptor for config type StorageConfig
+[14Oct2026 22:33:00.515] [modloading-worker-0/INFO] [Voxy/]: [me.cx.vy.cn.cg.Serialization]: Registered Config as ReadonlyCachingLayer for config type StorageConfig
+[14Oct2026 22:33:00.517] [modloading-worker-0/INFO] [Voxy/]: [me.cx.vy.cn.cg.Serialization]: Registered Config as Redis for config type StorageConfig
+[14Oct2026 22:33:00.518] [modloading-worker-0/INFO] [Voxy/]: [me.cx.vy.cn.cg.Serialization]: Registered Config as RocksDB for config type StorageConfig
+[14Oct2026 22:33:00.520] [modloading-worker-0/INFO] [Voxy/]: [me.cx.vy.cn.cg.Serialization]: Registered 13 config types
+[14Oct2026 22:33:01.004] [main/INFO] [com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService/]: Environment: Environment[sessionHost=https://sessionserver.mojang.com, servicesHost=https://api.minecraftservices.com, profilesHost=https://api.mojang.com, name=PROD]
+[14Oct2026 22:33:03.199] [main/INFO] [net.minecraft.world.item.crafting.RecipeManager/]: Loaded 1515 recipes
+[14Oct2026 22:33:03.214] [main/INFO] [net.minecraft.advancements.AdvancementTree/]: Loaded 1617 advancements
+[14Oct2026 22:33:03.216] [main/INFO] [net.neoforged.neoforge.common.crafting.RecipePriorityManager/]: Loaded 0 recipe priority overrides
+[14Oct2026 22:33:03.359] [Server thread/INFO] [net.minecraft.server.dedicated.DedicatedServer/]: Starting minecraft server version 26.1.2
+[14Oct2026 22:33:03.359] [Server thread/INFO] [net.minecraft.server.dedicated.DedicatedServer/]: Loading properties
+[14Oct2026 22:33:03.360] [Server thread/INFO] [net.minecraft.server.dedicated.DedicatedServer/]: Default game type: SURVIVAL
+[14Oct2026 22:33:03.360] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Generating keypair
+[14Oct2026 22:33:03.457] [Server thread/INFO] [net.minecraft.server.dedicated.DedicatedServer/]: Starting Minecraft server on *:25599
+[14Oct2026 22:33:03.624] [Server thread/INFO] [net.minecraft.server.dedicated.DedicatedServer/]: Preparing level "world"
+[14Oct2026 22:33:03.902] [Server thread/INFO] [net.minecraft.server.level.progress.LoggingLevelLoadListener/]: Selecting global world spawn...
+[14Oct2026 22:33:08.362] [Server thread/INFO] [net.minecraft.server.level.progress.LoggingLevelLoadListener/]: Loading 0 persistent chunks...
+[14Oct2026 22:33:08.363] [Server thread/INFO] [net.minecraft.server.level.progress.LoggingLevelLoadListener/]: Preparing spawn area: 100%
+[14Oct2026 22:33:08.365] [Server thread/INFO] [net.minecraft.server.level.progress.LoggingLevelLoadListener/]: Time elapsed: 4462 ms
+[14Oct2026 22:33:08.365] [Server thread/INFO] [net.minecraft.server.dedicated.DedicatedServer/]: Done (4.784s)! For help, type "help"
+[14Oct2026 22:33:08.367] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Saving chunks for level 'ServerLevel[world]'/minecraft:overworld
+[14Oct2026 22:33:08.419] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Saving chunks for level 'ServerLevel[world]'/minecraft:the_nether
+[14Oct2026 22:33:08.424] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Saving chunks for level 'ServerLevel[world]'/minecraft:the_end
+[14Oct2026 22:33:08.440] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: ThreadedAnvilChunkStorage (world): All chunks are saved
+[14Oct2026 22:33:08.440] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: ThreadedAnvilChunkStorage (DIM-1): All chunks are saved
+[14Oct2026 22:33:08.440] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: ThreadedAnvilChunkStorage (DIM1): All chunks are saved
+[14Oct2026 22:33:08.440] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: ThreadedAnvilChunkStorage: All dimensions are saved
+[14Oct2026 22:33:08.460] [Server thread/INFO] [net.neoforged.neoforge.server.permission.PermissionAPI/]: Successfully initialized permission handler neoforge:default_handler
+[14Oct2026 22:34:08.411] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Server empty for 60 seconds, pausing

@@ -24,7 +24,7 @@ import java.util.function.Consumer;
 // and process accordingly
 public class RenderGenerationService {
     private static final int MAX_HOLDING_SECTION_COUNT = 1000;
-    private static long lastMissingSectionWarn = 0;
+
     public static final AtomicInteger MESH_FAILED_COUNTER = new AtomicInteger();
     private static final AtomicInteger COUNTER = new AtomicInteger();
     private static final class BuildTask {
@@ -153,22 +153,12 @@ public class RenderGenerationService {
         }
 
         if (section == null) {
-            if (WorldEngine.getLevel(task.position) == 0) {
-                //A level 0 section with no data means the corresponding vanilla chunk was
-                // never ingested into the voxy world (e.g. the ingest failed while the light
-                // data was not yet available). When this section is unloaded and viewed from
-                // a distance it renders as a hole/white square. Rate limited to avoid spam.
-                long now = System.currentTimeMillis();
-                if (now - lastMissingSectionWarn > 5000) {
-                    lastMissingSectionWarn = now;
-                    me.cortex.voxy.common.Logger.warn("Requested level 0 section has no data in the voxy world: " + WorldEngine.pprintPos(task.position) + " (missing ingest?)");
-                }
-            }
             if (this.resultConsumer != null) {
                 this.resultConsumer.accept(BuiltSection.empty(task.position));
             }
             return;
-        }        section.assertNotFree();
+        }
+        section.assertNotFree();
         BuiltSection mesh = null;
 
 

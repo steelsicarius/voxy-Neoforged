@@ -1,0 +1,13 @@
+Proyecto: port del mod Voxy (Fabric, MC 26.1.x) a NeoForge 26.1.2.
+Origen (solo lectura): /home/goose/proyectos/voxy
+Destino: este directorio (basado en el MDK ModDevGradle - /home/goose/proyectos/MDK-26.1.2-ModDevGradle-main).
+Entorno: Oracle Linux 9 aarch64, Java 25 en /usr/java/jdk-25-oracle-aarch64.
+Compilar con: JAVA_HOME=/usr/java/jdk-25-oracle-aarch64 ./gradlew build
+Reglas:
+- Minecraft usa versionado 26.x desde 2026 (26.0, 26.1, 26.1.2, 26.2, 26.3) y requiere Java 25.
+- Toma las versiones de NeoForge y del plugin moddev del MDK, no las inventes.
+- Nunca modifiques ~/voxy-2612
+- No inventes clases ni métodos de NeoForge/Minecraft: si dudas, búscalos en las fuentes del proyecto o en los jars de Gradle antes de escribirlos.
+- Trabaja en pasos pequeños, compila después de cada uno y haz git commit.
+- En este servidor ya hay un proceso ejecutándose en el puerto 25565, se tendrá que utilizar otro puerto como el 25599 para hacer pruebas.
+- Pregúntame solo si estás bloqueado o hay una decisión de diseño.

@@ -215,25 +215,10 @@ public abstract class VoxyInstance {
         }
     }
 
-    private static long lastIngestDebugStamp = 0;
-    private static long lastIngestDebugCount = 0;
-    private static long lastIngestDebugRate = 0;
-
     public void addDebug(List<String> debug) {
         debug.add("MemoryBuffer, Count/Size (mb): " + MemoryBuffer.getCount() + "/" + (MemoryBuffer.getTotalSize()/1_000_000));
         //TODO: fixme, doing this.activeWorlds.values() is not thread safe
         debug.add("I/S/AWSC: " + this.ingestService.getTaskCount() + "/" + this.savingService.getTaskCount() + "/[" + this.activeWorlds.values().stream().map(a->""+a.getActiveSectionCount()).collect(Collectors.joining(", ")) + "]");//Active world section count
-        {
-            //Ingest throughput, to diagnose slow lod fills (server lod streaming etc)
-            long now = System.currentTimeMillis();
-            long count = VoxelIngestService.SECTIONS_INGESTED.get();
-            if (now - lastIngestDebugStamp >= 2000) {
-                lastIngestDebugRate = (long) ((count - lastIngestDebugCount) / Math.max(0.001, (now - lastIngestDebugStamp) / 1000.0));
-                lastIngestDebugCount = count;
-                lastIngestDebugStamp = now;
-            }
-            debug.add("Ingest rate/backlog: " + lastIngestDebugRate + " sec/s / " + this.ingestService.getTaskCount() + " (total " + count + ")");
-        }
     }
 
     public void shutdown() {
