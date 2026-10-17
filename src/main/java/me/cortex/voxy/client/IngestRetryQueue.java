@@ -125,6 +125,11 @@ public class IngestRetryQueue {
         if (pending.isEmpty()) {
             return;
         }
+        //NOTE: the map must not be mutated inside the iteration except through the iterator
+        //itself: onIngestResult removes entries from `pending`, and calling it here corrupts
+        //the fastutil iterator (random ArrayIndexOutOfBoundsException in shiftKeys). The
+        //knownIngested/refreshSet bookkeeping is therefore applied after the loop.
+        var succeeded = new it.unimi.dsi.fastutil.longs.LongOpenHashSet();
         var it = pending.long2IntEntrySet().iterator();
         while (it.hasNext()) {
             var entry = it.next();
@@ -142,7 +147,7 @@ public class IngestRetryQueue {
             }
             var res = VoxelIngestService.tryAutoIngestChunk(chunk);
             if (res == VoxelIngestService.IngestResult.INGESTED || res == VoxelIngestService.IngestResult.INGESTED_NO_LIGHT) {
-                onIngestResult(level, x, z, res);
+                succeeded.add(pos);
                 it.remove();
                 continue;
             }
@@ -156,7 +161,7 @@ public class IngestRetryQueue {
             if (!lssServerActive()) {
                 var fb = VoxelIngestService.tryAutoIngestChunk(chunk, true);
                 if (fb == VoxelIngestService.IngestResult.INGESTED_NO_LIGHT || fb == VoxelIngestService.IngestResult.INGESTED) {
-                    onIngestResult(level, x, z, fb);
+                    succeeded.add(pos);
                     it.remove();
                     continue;
                 }
@@ -172,8 +177,16 @@ public class IngestRetryQueue {
             }
             entry.setValue(attempts);
         }
+        //Apply the bookkeeping for the chunks that finished, after the iteration
+        var known = knownSet(level);
+        var refresh = refreshSet(level);
+        long now = System.currentTimeMillis();
+        for (long pos : succeeded) {
+            known.add(pos);
+            refresh.remove(pos);
+            lastIngestAt.put(pos, now);
+        }
     }
-
     //Re-ingests chunks that were stored without light, now that light may be available
     private static void tickLightRefresh(ClientLevel level) {
         var set = lightRefresh.get(level.dimension());
