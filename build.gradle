@@ -201,6 +201,10 @@ dependencies {
     compileOnly sodiumModJarFiles
     // Iris shader support (active when iris is installed at runtime).
     compileOnly "maven.modrinth:iris:${iris_version_modrinth}"
+    // GLSL AST patching for Iris shader-pack patches (IrisShaderPatch). Iris bundles
+    // glsl-transformer as a jar-in-jar at runtime, so compileOnly is enough here,
+    // mirroring upstream's Fabric build.
+    compileOnly "io.github.douira:glsl-transformer:3.0.0-pre3"
     // Fabric loader types appear in the signatures of Flashback's API classes; compile
     // only, never packaged or used at runtime on NeoForge (FlashbackCompat checks
     // ModList and bails out when flashback is absent, which it always is here).

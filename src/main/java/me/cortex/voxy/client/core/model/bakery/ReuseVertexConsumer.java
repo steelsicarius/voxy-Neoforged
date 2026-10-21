@@ -88,8 +88,8 @@ public final class ReuseVertexConsumer implements VertexConsumer {
     }
 
     @Override
-    public VertexConsumer setLineWidth(float f) {
-        return null;
+    public ReuseVertexConsumer setLineWidth(float f) {
+        return this;
     }
 
     public ReuseVertexConsumer quad(BakedQuad quad) {

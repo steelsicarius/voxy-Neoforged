@@ -90,8 +90,8 @@ public class VoxyCommands {
         System.gc();
         VoxyCommon.createInstance();
 
-        var r = Minecraft.getInstance().levelRenderer;
-        if (r != null) Minecraft.getInstance().levelExtractor.allChanged();
+        var r = Minecraft.getInstance().levelExtractor;
+        if (r != null) r.allChanged();
         return 0;
     }
 

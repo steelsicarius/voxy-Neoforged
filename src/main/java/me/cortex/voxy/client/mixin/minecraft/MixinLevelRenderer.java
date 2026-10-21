@@ -103,17 +103,4 @@ public abstract class MixinLevelRenderer implements IVoxyRenderSystemHolder {
         }
         instance.updateDedicatedThreads();
     }
-
-
-
-    @Inject(method = "setLevel", at = @At("HEAD"))
-    private void voxy$onSetLevel(ClientLevel level, CallbackInfo cir) {
-        this.voxy$setWorld(level);
-    }
-
-    @Inject(method = "allChanged", at = @At("HEAD"))
-    private void voxy$reload(CallbackInfo cir) {
-        this.voxy$shutdownRenderer();
-        this.voxy$createRenderer();
-    }
 }
