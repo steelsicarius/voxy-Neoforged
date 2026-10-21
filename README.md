@@ -1,7 +1,7 @@
 # Voxy (NeoForge port)
 
 Port of Voxy — a far-distance (LoD) rendering mod for Minecraft — from Fabric
-(MC 26.1.x, origin tree `voxy-2612/`, read-only) to **NeoForge 26.1.2**.
+(voxy 0.2.18-beta, MC 26.1.2, origin tree `voxy-2612/`, read-only) to **NeoForge 26.3**.
 
 - Build: `JAVA_HOME=/usr/java/jdk-25-oracle-aarch64 ./gradlew build`
 - Run client: `JAVA_HOME=/usr/java/jdk-25-oracle-aarch64 ./gradlew runClient`
@@ -41,3 +41,33 @@ Port of Voxy — a far-distance (LoD) rendering mod for Minecraft — from Fabri
 
 Upstream (Fabric): https://github.com/mircro-cortex/voxy by Cortex.
 License: All Rights Reserved (see `voxy-2612/LICENSE.md`).
+
+## Actualización a voxy 0.2.20-beta (upstream `voxy-dev`, Fabric/MC 26.3)
+
+Portados los cambios de upstream entre 0.2.18-beta y 0.2.20-beta (misma versión de MC,
+por lo que la mayoría de archivos se tomaron directamente de upstream):
+
+- **Migración de mundos por DataVersion** (`Mapper`/`SaveLoadSystem3`): blockstates con
+  `version` + migración vía `DataFixers`; nuevo `SaveLoadSystem3.remap`.
+- **Importador de mundos**: chunks NBT actualizados con `DataFixers` (`References.CHUNK`).
+- **Config de niebla**: `useEnvironmentalFog` → `fogMode` (`FogMode`:
+  OFF/FOG/FADE/FOG_AND_FADE), fade en shader (`HAS_FADE`/`fadeParams`), textos nuevos.
+- **Far/near plane dinámicos**: `setProjection(projection, near, far)`,
+  `useDynamicFarPlane` y uniforms `vxFarPlane`/`vxNearPlane`.
+- **`MixinLevelExtractor` nuevo** (fix real del port 26.3: en MC 26.3 `setLevel`/
+  `allChanged` viven en `LevelExtractor`; los injects sobre `LevelRenderer` eran
+  inoperantes); eliminados esos injects de `MixinLevelRenderer`.
+- **`MixinMinecraft`**: `WrapOperation` sobre `GpuBackend.createDevice` que rechaza
+  `VulkanBackend` — voxy solo soporta OpenGL.
+- **MixinConfig** (plugin, adaptado a `ModList`) en ambos mixin configs.
+- **Iris**: `DepthTransformerAccessor` + patcher revZ de shaderpacks (glsl-transformer
+  3.0.0-pre3 compileOnly; iris 1.11.7 lo trae embebido), `USED_IRIS_VIEWPORT`,
+  `conditionallyReverseRevZ` en `VoxyUniforms`, `useReverseZ` sin guard de iris.
+- **Sodium 0.9.2**: nuevo `voxy$forceOpaque` (inyecta en `prepare` y fuerza el pass
+  CUTOUT cuando voxy renderiza).
+- **Model bakery**: `INTEGER_BITS` 9→13, `setLineWidth` no-null, shading por
+  `shadeDirectionOverride`, plumbing `rasterUV` (de momento `false`).
+- **Ciclo de vida** de `visbleSectionStream` + checks de null en sodium mixins.
+- **mods.toml**: nuevo break con iris >=1.12 (equivalente del `breaks` de fabric.mod.json).
+
+Pendiente igual que antes: prueba visual del cliente.
