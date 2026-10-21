@@ -14,7 +14,7 @@ import net.caffeinemc.mods.sodium.client.render.chunk.map.ChunkTrackerHolder;
 import net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.SortBehavior;
 import net.caffeinemc.mods.sodium.client.render.viewport.Viewport;
 import net.caffeinemc.mods.sodium.client.util.FogParameters;
-import net.fabricmc.loader.api.FabricLoader;
+import net.neoforged.fml.ModList;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.SectionPos;
 import net.minecraft.world.level.ChunkPos;
@@ -32,7 +32,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(value = RenderSectionManager.class, remap = false)
 public class MixinRenderSectionManager {
     @Unique
-    private static final boolean BOBBY_INSTALLED = FabricLoader.getInstance().isModLoaded("bobby");
+    private static final boolean BOBBY_INSTALLED = ModList.get().isLoaded("bobby");
 
     @Shadow @Final private ClientLevel level;
 
@@ -44,7 +44,7 @@ public class MixinRenderSectionManager {
     @Inject(method = "renderOutOfGraph", at = @At("HEAD"))
     private void voxy$injectReset1(Viewport viewport, FogParameters fogParameters, CallbackInfo ci) {
         var vrs = IVoxyRenderSystemHolder.getNullable();
-        if (vrs != null && !IrisUtil.irisShadowActive()) {
+        if (vrs != null && !IrisUtil.irisShadowActive() && vrs.visbleSectionStream != null) {
             vrs.visbleSectionStream.reset();
         }
     }
@@ -52,7 +52,7 @@ public class MixinRenderSectionManager {
     @Inject(method = "readRenderListFromTree", at = @At(value = "INVOKE", target = "Lnet/caffeinemc/mods/sodium/client/render/chunk/lists/VisibleChunkCollector;<init>(Lnet/caffeinemc/mods/sodium/client/render/chunk/region/RenderRegionManager;I)V"))
     private void voxy$injectReset2(Viewport viewport, FogParameters fogParameters, CallbackInfo ci) {
         var vrs = IVoxyRenderSystemHolder.getNullable();
-        if (vrs != null && !IrisUtil.irisShadowActive()) {
+        if (vrs != null && !IrisUtil.irisShadowActive() && vrs.visbleSectionStream != null) {
             vrs.visbleSectionStream.reset();
         }
     }
@@ -65,7 +65,11 @@ public class MixinRenderSectionManager {
             if (cccm != null) {
                 var chunk = cccm.voxy$cheekyGetChunk(x, z);
                 if (chunk != null) {
-                    VoxelIngestService.tryAutoIngestChunk(chunk);
+                    voxy$handleIngestResult(x, z, VoxelIngestService.tryAutoIngestChunk(chunk));
+                } else {
+                    //The chunk left the chunk cache before we could ingest it. The final
+                    // capture happens in the ChunkEvent.Unload listener in VoxyClient, and
+                    // the periodic sweep in IngestRetryQueue covers anything that was missed.
                 }
             }
         }
@@ -79,10 +83,15 @@ public class MixinRenderSectionManager {
             if (cccm != null) {
                 var chunk = cccm.getChunk(x, z, ChunkStatus.FULL, false);
                 if (chunk != null) {
-                    VoxelIngestService.tryAutoIngestChunk(chunk);
+                    voxy$handleIngestResult(x, z, VoxelIngestService.tryAutoIngestChunk(chunk));
                 }
             }
         }
+    }
+
+    @Unique
+    private void voxy$handleIngestResult(int x, int z, VoxelIngestService.IngestResult result) {
+        me.cortex.voxy.client.IngestRetryQueue.onIngestResult(this.level, x, z, result);
     }
 
 

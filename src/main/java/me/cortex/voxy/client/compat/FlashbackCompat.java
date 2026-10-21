@@ -4,12 +4,12 @@ import com.moulberry.flashback.Flashback;
 import com.moulberry.flashback.playback.ReplayServer;
 import com.moulberry.flashback.record.FlashbackMeta;
 import me.cortex.voxy.common.Logger;
-import net.fabricmc.loader.api.FabricLoader;
+import net.neoforged.fml.ModList;
 
 import java.nio.file.Path;
 
 public class FlashbackCompat {
-    public static final boolean FLASHBACK_INSTALLED = FabricLoader.getInstance().isModLoaded("flashback");
+    public static final boolean FLASHBACK_INSTALLED = ModList.get().isLoaded("flashback");
 
     public static Path getReplayStoragePath() {
         if (!FLASHBACK_INSTALLED) {

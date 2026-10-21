@@ -6,12 +6,12 @@ import me.cortex.voxy.commonImpl.VoxyCommon;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.debug.DebugScreenDisplayer;
-import net.minecraft.client.gui.components.debug.DebugScreenEntries;
 import net.minecraft.client.gui.components.debug.DebugScreenEntry;
 import net.minecraft.client.gui.components.debug.DebugScreenEntryStatus;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.chunk.LevelChunk;
+import net.neoforged.neoforge.client.event.RegisterDebugEntriesEvent;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
@@ -19,8 +19,12 @@ import java.util.Map;
 
 public class DebugEntries {
     public static final Identifier GPU_DEBUG = Identifier.fromNamespaceAndPath("voxy", "gpu_debug");
-    public static void init() {
-        DebugScreenEntries.register(Identifier.fromNamespaceAndPath("voxy", "version"), new DebugScreenEntry() {
+
+    //Fabric port: was DebugScreenEntries.register(...) called from init() at client startup.
+    //NeoForge patched DebugScreenEntries and instead fires RegisterDebugEntriesEvent on the
+    //mod event bus, so the registrations now happen in this listener.
+    public static void registerEntries(RegisterDebugEntriesEvent event) {
+        event.register(Identifier.fromNamespaceAndPath("voxy", "version"), new DebugScreenEntry() {
             @Override
             public void display(DebugScreenDisplayer lines, @Nullable Level level, @Nullable LevelChunk levelChunk, @Nullable LevelChunk levelChunk2) {
                 if (!VoxyCommon.isAvailable()) {
@@ -37,9 +41,9 @@ public class DebugEntries {
             }
         });
 
-        DebugScreenEntries.register(Identifier.fromNamespaceAndPath("voxy","debug"), new VoxyDebugScreenEntry());
+        event.register(Identifier.fromNamespaceAndPath("voxy","debug"), new VoxyDebugScreenEntry());
 
-        DebugScreenEntries.register(GPU_DEBUG, new DebugScreenEntry() {
+        event.register(GPU_DEBUG, new DebugScreenEntry() {
             @Override
             public void display(DebugScreenDisplayer debugScreenDisplayer, @Nullable Level level, @Nullable LevelChunk levelChunk, @Nullable LevelChunk levelChunk2) {
 

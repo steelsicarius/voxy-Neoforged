@@ -43,5 +43,6 @@
   },
   "overwrites": {
     "requireAnnotations": true
-  }
+  },
+  "plugin": "me.cortex.voxy.common.MixinConfig"
 }

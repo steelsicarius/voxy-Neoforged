@@ -178,6 +178,7 @@ public class IrisShaderPatch {
         public float[] renderScale;
         public boolean useViewportDims;
         public boolean skipShaderDepthHackFix;
+        public boolean useDynamicFarPlane;
         //public boolean deferTranslucentRendering;
         public String checkValid() {
             if (this.blending != null) {
@@ -230,6 +231,10 @@ public class IrisShaderPatch {
     }
 
     public boolean skipShaderDepthHackFix() { return this.patchData.skipShaderDepthHackFix; }
+
+    public boolean useDynamicFarPlane() {
+        return this.patchData.useDynamicFarPlane;
+    }
     public Int2ObjectMap<String> getSSBOs() {
         return new Int2ObjectLinkedOpenHashMap<>(this.ssbos);
     }

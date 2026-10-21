@@ -2,31 +2,51 @@ package me.cortex.voxy.commonImpl;
 
 import me.cortex.voxy.common.Logger;
 import me.cortex.voxy.common.config.Serialization;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.ModInitializer;
-import net.fabricmc.loader.api.FabricLoader;
-import net.fabricmc.loader.api.ModContainer;
+import net.neoforged.fml.ModList;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.loading.FMLEnvironment;
 
-public class VoxyCommon implements ModInitializer {
+@Mod(VoxyCommon.MODID)
+public class VoxyCommon {
+    public static final String MODID = "voxy";
     public static final String MOD_VERSION;
     public static final boolean IS_DEDICATED_SERVER;
     public static final boolean IS_IN_MINECRAFT;
 
     static {
-        ModContainer mod = (ModContainer) FabricLoader.getInstance().getModContainer("voxy").orElse(null);
-        if (mod == null) {
-            IS_IN_MINECRAFT = false;
-            Logger.error("Running voxy without minecraft");
-            MOD_VERSION = "<UNKNOWN>";
-            IS_DEDICATED_SERVER = false;
-        } else {
-            IS_IN_MINECRAFT = true;
-            var version = mod.getMetadata().getVersion().getFriendlyString();
-            var commit = mod.getMetadata().getCustomValue("commit").getAsString();
-            MOD_VERSION = version + "-" + commit.substring(0,7);
-            IS_DEDICATED_SERVER = FabricLoader.getInstance().getEnvironmentType() == EnvType.SERVER;
+        //Fabric port: the original resolved the mod container from FabricLoader.
+        //On NeoForge we can only get here while FML is loading, but keep the
+        //degraded "running without minecraft" path just in case (tools/tests).
+        String modVersion = "<UNKNOWN>";
+        boolean dedicated = false;
+        boolean inMinecraft = false;
+        try {
+            var modInfo = ModList.get().getMods().stream()
+                    .filter(info -> MODID.equals(info.getModId()))
+                    .findFirst()
+                    .orElse(null);
+            inMinecraft = modInfo != null;
+            if (inMinecraft) {
+                modVersion = modInfo.getVersion().toString();
+                dedicated = FMLEnvironment.getDist().isDedicatedServer();
+            } else {
+                Logger.error("Running voxy without minecraft");
+            }
+        } catch (Throwable t) {
+            //FML not present or not initialized: assume we are outside of minecraft.
+            inMinecraft = false;
+            dedicated = false;
+        }
+        MOD_VERSION = modVersion;
+        IS_DEDICATED_SERVER = dedicated;
+        IS_IN_MINECRAFT = inMinecraft;
+        if (IS_IN_MINECRAFT) {
             Serialization.init();
         }
+    }
+
+    public VoxyCommon() {
+        //Common setup. On Fabric this was the (empty) ModInitializer.onInitialize().
     }
 
     //This is hardcoded like this because people do not understand what they are doing
@@ -40,11 +60,6 @@ public class VoxyCommon implements ModInitializer {
 
     public static void breakpoint() {
         int breakpoint = 0;
-    }
-
-    @Override
-    public void onInitialize() {
-
     }
 
     public interface IInstanceFactory {VoxyInstance create();}

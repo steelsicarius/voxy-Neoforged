@@ -6,10 +6,10 @@
     "defaultRequire": 1
   },
   "mixins": [
-    "chunky.MixinFabricWorld",
     "minecraft.MixinWorld"
   ],
   "overwrites": {
     "requireAnnotations": true
-  }
+  },
+  "plugin": "me.cortex.voxy.common.MixinConfig"
 }

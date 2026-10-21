@@ -6,7 +6,7 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import me.cortex.voxy.common.Logger;
 import me.cortex.voxy.commonImpl.VoxyCommon;
-import net.fabricmc.loader.api.FabricLoader;
+import net.neoforged.fml.ModList;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -96,8 +96,7 @@ public class Serialization {
         Map<Class<?>, GsonConfigSerialization<?>> serializers = new HashMap<>();
 
         Set<String> clazzs = new LinkedHashSet<>();
-        var path = FabricLoader.getInstance().getModContainer("voxy").get().getRootPaths().get(0);
-        clazzs.addAll(collectAllClasses(path, BASE_SEARCH_PACKAGE));
+        clazzs.addAll(collectAllClasses(modRootPath(), BASE_SEARCH_PACKAGE));
         clazzs.addAll(collectAllClasses(BASE_SEARCH_PACKAGE));
         int count = 0;
         outer:
@@ -166,6 +165,12 @@ public class Serialization {
         Logger.info("Registered " + count + " config types");
     }
 
+    //Fabric port: was FabricLoader.getInstance().getModContainer("voxy").get().getRootPaths().get(0)
+    //On NeoForge the mod root is the classes directory in dev and the mod jar in production.
+    private static Path modRootPath() {
+        return ModList.get().getModFileById(VoxyCommon.MODID).getFile().getFilePath();
+    }
+
     private static List<String> collectAllClasses(String pack) {
         try {
             InputStream stream = Serialization.class.getClassLoader()
@@ -190,6 +195,10 @@ public class Serialization {
     }
     private static List<String> collectAllClasses(Path base, String pack) {
         if (!Files.exists(base.resolve(pack.replaceAll("[.]", "/")))) {
+            //The mod can be a single jar in production: scan its entries instead of walking the filesystem.
+            if (!Files.isDirectory(base) && Files.exists(base)) {
+                return collectAllClassesFromJar(base, pack);
+            }
             return List.of();
         }
         try {
@@ -205,5 +214,23 @@ public class Serialization {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private static List<String> collectAllClassesFromJar(Path jarPath, String pack) {
+        String packPath = pack.replaceAll("[.]", "/") + "/";
+        List<String> found = new ArrayList<>();
+        try (java.util.zip.ZipFile zip = new java.util.zip.ZipFile(jarPath.toFile())) {
+            var entries = zip.entries();
+            while (entries.hasMoreElements()) {
+                var entry = entries.nextElement();
+                String name = entry.getName();
+                if (name.startsWith(packPath) && name.endsWith(".class")) {
+                    found.add(pack + "." + name.substring(packPath.length()).replace(".class", "").replace('/', '.'));
+                }
+            }
+        } catch (IOException e) {
+            Logger.error("Failed to collect classes from jar: " + jarPath, e);
+        }
+        return found;
     }
 }
