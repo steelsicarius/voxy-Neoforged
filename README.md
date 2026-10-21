@@ -42,3 +42,31 @@ Port of Voxy — a far-distance (LoD) rendering mod for Minecraft — from Fabri
 
 Upstream (Fabric): https://github.com/mircro-cortex/voxy by Cortex.
 License: All Rights Reserved (see `voxy-2612/LICENSE.md`).
+
+## Actualización a voxy 0.2.20-beta (upstream `voxy-dev`, Fabric/MC 26.3)
+
+Portados los cambios de upstream entre 0.2.18-beta y 0.2.20-beta, adaptados a
+MC 26.2 / NeoForge:
+
+- **Migración de mundos por DataVersion** (`Mapper`/`SaveLoadSystem3`): los blockstates
+  guardados llevan `version` (data version) y se migran con `DataFixers`; nuevo
+  `SaveLoadSystem3.remap` para remapear block/biome ids de secciones guardadas.
+- **Importador de mundos**: chunks NBT actualizados con `DataFixers` (`References.CHUNK`).
+- **Config de niebla**: `useEnvironmentalFog` → `fogMode` (`FogMode`:
+  OFF/FOG/FADE/FOG_AND_FADE), fade en shader (`HAS_FADE`/`fadeParams`), textos nuevos.
+- **Far/near plane dinámicos**: `setProjection(projection, near, far)`,
+  `useDynamicFarPlane` y uniforms `vxFarPlane`/`vxNearPlane`.
+- **`MixinLevelExtractor` nuevo** (fix real del port 26.2: en MC 26.2 `setLevel`/`allChanged`
+  se movieron de `LevelRenderer` a `LevelExtractor`, así que los injects antiguos nunca
+  disparaban); eliminados esos injects de `MixinLevelRenderer`.
+- **`MixinMinecraft`**: `WrapOperation` sobre `GpuBackend.createDevice` (firma de 26.2:
+  `(J,ShaderSource,GpuDebugOptions,Runnable)`) que rechaza `VulkanBackend` — voxy solo
+  soporta OpenGL.
+- **MixinConfig** (plugin, adaptado a `ModList`) en ambos mixin configs.
+- **Iris**: `DepthTransformerAccessor` + patcher revZ de shaderpacks (glsl-transformer,
+  compileOnly; iris 1.11.4 lo trae embebido), `USED_IRIS_VIEWPORT`,
+  `conditionallyReverseRevZ` en `VoxyUniforms`.
+- **Ciclo de vida** de `visbleSectionStream` + checks de null en sodium mixins.
+- **mods.toml**: nuevo break con iris >=1.12 (equivalente del `breaks` de fabric.mod.json).
+
+Pendiente igual que antes: prueba visual del cliente.
