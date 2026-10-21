@@ -93,8 +93,8 @@ public final class ReuseVertexConsumer implements VertexConsumer {
     }
 
     @Override
-    public VertexConsumer setLineWidth(float f) {
-        return null;
+    public ReuseVertexConsumer setLineWidth(float f) {
+        return this;
     }
 
     public ReuseVertexConsumer quad(BakedQuad quad) {
@@ -109,8 +109,8 @@ public final class ReuseVertexConsumer implements VertexConsumer {
     }
 
     public ReuseVertexConsumer quad(BakedQuad quad, int metadata) {
-        //MC 26.3: MaterialInfo.shade() was removed, all quads are now directionally shaded
-        this.anyShaded |= true;
+        //TODO: FIXME: this is wrong, e.g. stuff becomes conditionally shaded, e.g. the shade comes from the override pretty sure
+        this.anyShaded |= quad.materialInfo().shadeDirectionOverride() == null;
         this.anyDarkendTex |= quad.materialInfo().sprite().contents().mipmapStrategy == MipmapStrategy.DARK_CUTOUT;
         this.ensureCanPut();
         for (int i = 0; i < 4; i++) {

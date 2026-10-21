@@ -68,7 +68,7 @@ public class VoxyRenderSystem {
 
     private final RenderDistanceTracker renderDistanceTracker;
     private final BoundRenderer boundOutlineRenderer;
-    public final StreamedBoundStore visbleSectionStream = new StreamedBoundStore();
+    public final StreamedBoundStore visbleSectionStream;
     private @Nullable ColumnStreamedBoundStore columnStreamedBoundStore;//Only used when FREX is enabled
 
     private final ViewportSelector<?> viewportSelector;
@@ -109,6 +109,7 @@ public class VoxyRenderSystem {
             this.worldIn = world;
 
             this.properties = RenderProperties.getRenderProperties();
+            this.visbleSectionStream = new StreamedBoundStore();
             var backendFactory = getRenderBackendFactory();
             {
                 this.modelService = new ModelBakerySubsystem(world.getMapper());
@@ -200,7 +201,18 @@ public class VoxyRenderSystem {
         }
 
         //cameraY += 100;
-        var voxyProjection = computeProjectionMat(this.properties, vanillaProjection);
+        float far = 3000 * 16;
+        //dont like this hacky instanceof thing and how this is wired
+        //TODO: fixme
+        if (this.pipeline instanceof IrisVoxyRenderPipeline ivrp) {
+            if (ivrp._getData().useDynamicFarPlane) {
+                far  = (VoxyConfig.CONFIG.sectionRenderDistance * 32 + 2) * ((float) Math.sqrt(3)) * 16;
+            }
+        }
+
+        float near = getVanillaRenderDistance()<=32.0f?8f:16f;
+        near = VoxyClient.disableSodiumChunkRender()?0.1f:near;
+        var voxyProjection = computeProjectionMat(this.properties, vanillaProjection, near, far);
 
         /*
         int[] dims = new int[4];
@@ -224,7 +236,7 @@ public class VoxyRenderSystem {
 
         viewport
                 .setVanillaProjection(vanillaProjection)
-                .setProjection(voxyProjection)
+                .setProjection(voxyProjection, near, far)
                 .setModelView(new Matrix4f(modelView))
                 .setCamera(cameraX, cameraY, cameraZ)
                 .setScreenSize(width, height)
@@ -286,7 +298,7 @@ public class VoxyRenderSystem {
         this.pipeline.preSetup(viewport);
 
         TimingStatistics.E.start();
-        if ((!VoxyClient.disableSodiumChunkRender())&&!IrisUtil.irisShadowActive()) {
+        if (this.visbleSectionStream != null && (!VoxyClient.disableSodiumChunkRender()) && !IrisUtil.irisShadowActive()) {
             if (VoxyClient.isFrexActive()!=(this.columnStreamedBoundStore!=null)) {
                 if (this.columnStreamedBoundStore == null) {
                     this.columnStreamedBoundStore = new ColumnStreamedBoundStore();
@@ -426,7 +438,7 @@ public class VoxyRenderSystem {
         }
     }
 
-    public static float getRenderDistance() {
+    public static float getVanillaRenderDistance() {
         return Minecraft.getInstance().options.getEffectiveRenderDistance()*16;
     }
 
@@ -463,16 +475,14 @@ public class VoxyRenderSystem {
         ).mulLocal(makeProjectionMatrix(nearVoxy, 16*3000));
     }*/
 
-    private static Matrix4f computeProjectionMat(RenderProperties properties, Matrix4fc base) {
+    private static Matrix4f computeProjectionMat(RenderProperties properties, Matrix4fc base, float nearPlane, float farPlane) {
 
         //this jank is to capture the extra crap they inject like viewbobbing
         var rawMCProj = Minecraft.getInstance().gameRenderer.gameRenderState().levelRenderState.cameraRenderState.projectionMatrix;
         var extraProjection = rawMCProj.invert(new Matrix4f()).mul(base);
 
-        float near = getRenderDistance()<=32.0f?8f:16f;
-        near = VoxyClient.disableSodiumChunkRender()?0.1f:near;
-
-        float far = 16*3000;
+        float far = farPlane;
+        float near = nearPlane;
 
         /* jank way of just modifying the base raw
         if (true) {
@@ -558,7 +568,9 @@ public class VoxyRenderSystem {
             }
 
             this.boundOutlineRenderer.free();
-            this.visbleSectionStream.free();
+            if (this.visbleSectionStream != null) {
+                this.visbleSectionStream.free();
+            }
             if (this.columnStreamedBoundStore != null) {
                 this.columnStreamedBoundStore.free();
                 this.columnStreamedBoundStore = null;

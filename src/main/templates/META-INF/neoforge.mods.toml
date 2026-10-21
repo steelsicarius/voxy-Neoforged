@@ -82,3 +82,11 @@ file="META-INF/accesstransformer.cfg"
     versionRange="[2.2.2]"
     ordering="NONE"
     side="BOTH"
+
+# Breaks: iris >=1.12- (from fabric.mod.json in 0.2.20-beta)
+[[dependencies.${mod_id}]]
+    modId="iris"
+    type="incompatible"
+    versionRange="[1.12,)"
+    ordering="NONE"
+    side="CLIENT"

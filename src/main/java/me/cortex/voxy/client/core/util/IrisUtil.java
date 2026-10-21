@@ -22,6 +22,8 @@ public class IrisUtil {
 
     public static CapturedViewportParameters CAPTURED_VIEWPORT_PARAMETERS;
 
+    public static boolean USED_IRIS_VIEWPORT;
+
     public static final boolean IRIS_INSTALLED = ModList.get().isLoaded("iris");
     public static final boolean SHADER_SUPPORT = true;//System.getProperty("voxy.enableExperimentalIrisPipeline", "false").equalsIgnoreCase("true");
 

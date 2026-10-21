@@ -19,7 +19,9 @@ import net.caffeinemc.mods.sodium.client.render.chunk.vertex.format.ChunkVertexT
 import net.caffeinemc.mods.sodium.client.render.viewport.CameraTransform;
 import net.caffeinemc.mods.sodium.client.util.FogParameters;
 import net.minecraft.client.renderer.oit.OitStage;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -27,8 +29,21 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(value = DefaultChunkRenderer.class, remap = false)
 public abstract class MixinDefaultChunkRenderer extends ShaderChunkRenderer {
+
+    @Shadow
+    @Final
+    private boolean[] shouldDraw;
+
     public MixinDefaultChunkRenderer(ChunkVertexType vertexType) {
         super(vertexType);
+    }
+
+    @Inject(method = "prepare", at = @At(value = "TAIL"))
+    private void voxy$forceOpaque(ChunkRenderListIterable renderLists, CameraTransform cameraTransform, boolean indexedRenderingEnabled, CallbackInfo ci) {
+        var renderer = IVoxyRenderSystemHolder.getNullable();
+        if (renderer != null) {
+            this.shouldDraw[DefaultTerrainRenderPasses.getPassIndex(DefaultTerrainRenderPasses.CUTOUT)] = true;
+        }
     }
 
     @Inject(method = "render", at = @At(value = "HEAD"), cancellable = true)
@@ -53,8 +68,9 @@ public abstract class MixinDefaultChunkRenderer extends ShaderChunkRenderer {
             if (renderer != null) {
                 Viewport<?> viewport = null;
                 var target = renderPass.getTarget();
-                if (IrisUtil.irisShaderPackEnabled()) {
+                if (IrisUtil.USED_IRIS_VIEWPORT) {
                     viewport = renderer.getViewport();
+                    IrisUtil.USED_IRIS_VIEWPORT = false;
                 } else {
                     viewport = renderer.setupViewport(matrices.projection(), matrices.modelView(), fogParameters, target.width, target.height, camera.x, camera.y, camera.z);
                 }
