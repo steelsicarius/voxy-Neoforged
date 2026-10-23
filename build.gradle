@@ -39,6 +39,26 @@ sourceSets.main.resources {
 // directory under unique `me.cortex.vojynatives:<module>-<classifier>` coordinates.
 def voxyNativesGroup = 'me.cortex.vojynatives'
 
+// ---- RocksDB native stripping (mirror of upstream Fabric's makeExcludedRocksDB) ----
+// rocksdbjni ships prebuilt natives for a dozen platforms (~73 MB); the win64 and
+// linux-x64 ones are only ~9 MB of that. By default only those two are embedded -
+// exactly the set the upstream Fabric build ships through its makeExcludedRocksDB
+// task - which brings the distributable jar down to Fabric's size without any
+// runtime difference for win64/linux-x64 players. Build with
+// -PincludeOtherArchs=true to embed the full upstream jar with every platform's
+// natives (the equivalent of Fabric's INCLUDE_OTHER_ARCHS flag).
+// The stripped jar is published into natives-repo/ under the me.cortex.vojynatives
+// group (same pattern as the LWJGL natives jars): jarJar resolves its configuration
+// while building the task graph, before any task can run, so the file must be present
+// on a fresh checkout. After bumping rocksdbVersion, run `gradlew stripRocksdbNatives`
+// and commit the regenerated jar.
+def includeOtherArchs = 'true'.equalsIgnoreCase(project.findProperty('includeOtherArchs') ?: 'false')
+def rocksdbVersion = '10.2.1'
+// Resolved only to fetch the upstream jar that the stripRocksdbNatives task repackages.
+configurations {
+    rocksdbSource
+}
+
 repositories {
     // Add here additional repositories if required by some of the dependencies below.
     // Modrinth maven, used for compat mods (sodium, iris, ...) resolved by mod id + version.
@@ -223,11 +243,19 @@ dependencies {
     implementation 'org.rocksdb:rocksdbjni:10.2.1'
     implementation 'org.apache.commons:commons-pool2:2.12.0'
     implementation 'org.tukaani:xz:1.10'
+    rocksdbSource "org.rocksdb:rocksdbjni:${rocksdbVersion}"
     // The jarJar configuration is non-transitive: jedis' org.json dependency (not
     // provided by MC) is embedded explicitly.
     jarJar 'redis.clients:jedis:5.1.0'
     jarJar 'org.json:json:20231013'
-    jarJar 'org.rocksdb:rocksdbjni:10.2.1'
+    if (includeOtherArchs) {
+        // Full upstream jar with the natives of every platform (aarch64/musl/osx/...).
+        jarJar "org.rocksdb:rocksdbjni:${rocksdbVersion}"
+    } else {
+        // Stripped jar from stripRocksdbNatives (win64 + linux-x64 natives only),
+        // published into natives-repo/ under the same group as the LWJGL natives.
+        jarJar "${voxyNativesGroup}:rocksdbjni:${rocksdbVersion}"
+    }
     jarJar 'org.apache.commons:commons-pool2:2.12.0'
     jarJar 'org.tukaani:xz:1.10'
     // sqlite-jdbc stays dev-runtime-only, exactly like the Fabric build: the Distant
@@ -269,6 +297,36 @@ dependencies {
     // For more info:
     // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
     // http://www.gradle.org/docs/current/userguide/dependency_management.html
+}
+
+// Repackages the upstream rocksdbjni jar keeping only the win64 and linux-x64 natives,
+// the exact same filter as upstream Fabric's makeExcludedRocksDB task: every .jnilib
+// (macOS) is dropped, and every .so that is not the standard linux-x64 build
+// (osx/linux32/musl/s390x/riscv64/ppc64le/aarch64). Classes and manifest are untouched,
+// so the jar is byte-for-byte upstream for win64/linux-x64 players and the RocksDB
+// storage backend (voxy's default) keeps working identically. The result is published
+// into natives-repo/ (committed to git, see the note above) under the same group as
+// the LWJGL natives jars.
+def stripRocksdbNatives = tasks.register('stripRocksdbNatives', Zip) {
+    dependsOn configurations.rocksdbSource
+    description = 'Repackages rocksdbjni without the exotic-platform natives (win64/linux-x64 only), like upstream Fabric\'s makeExcludedRocksDB'
+    from { zipTree(configurations.rocksdbSource.singleFile) }
+    // STORED, like upstream: the .so/.dll entries are re-deflated as a whole by the
+    // outer mod jar, so compressing them here a second time is wasted build time.
+    entryCompression = ZipEntryCompression.STORED
+    archiveExtension.set('jar')
+    archiveFileName.set("rocksdbjni-${rocksdbVersion}.jar")
+    destinationDirectory.set(file("natives-repo/${voxyNativesGroup.replace('.', '/')}/rocksdbjni/${rocksdbVersion}"))
+    exclude { element ->
+        def name = element.name
+        if (name.endsWith('.jnilib')) {
+            return true
+        }
+        if (!name.endsWith('.so')) {
+            return false
+        }
+        return ['osx', 'linux32', 'musl', 's390x', 'riscv64', 'ppc64le', 'aarch64'].any(name::contains)
+    }
 }
 
 // This block of code expands all declared replace properties in the specified resource targets.

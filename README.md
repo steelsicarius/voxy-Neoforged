@@ -39,6 +39,28 @@ Port of Voxy — a far-distance (LoD) rendering mod for Minecraft — from Fabri
 - Pendiente: prueba visual del cliente (`runClient` necesita display; este host no tiene
   Xvfb y sin sudo no se puede instalar).
 
+## Tamaño del jar: natives de RocksDB recortados (2026-10-23)
+
+El jar distribuible baja de 75,5 MB a ~12,4 MB (el jar de Fabric pesa 12 MB). El 96 % del
+peso era `rocksdbjni-10.2.1.jar` (72,8 MB), que trae natives precompilados para una docena
+de plataformas (osx, linux32, musl, s390x, riscv64, ppc64le, aarch64, ...).
+
+- Por defecto se embebe un `rocksdbjni` recortado con el mismo filtro que usa el build de
+  Fabric (`makeExcludedRocksDB`): solo los natives win64 y linux-x64 (~9 MB). Las clases
+  Java y el manifest van intactos, así que el backend RocksDB (el storage por defecto de
+  voxy) funciona exactamente igual en Windows y Linux x64.
+- `./gradlew build -PincludeOtherArchs=true` embebe el jar upstream completo con los
+  natives de todas las plataformas (equivalente al `INCLUDE_OTHER_ARCHS` de Fabric):
+  usarlo para clientes/servidores ARM64 u otros exóticos que necesiten el backend RocksDB.
+- El jar recortado se publica en `natives-repo/me/cortex/vojynatives/rocksdbjni/`
+  (regenerable con `./gradlew stripRocksdbNatives`): jarJar resuelve su configuración al
+  construir el grafo de tareas, antes de que cualquier tarea pueda generarlo, así que el
+  fichero debe existir en un checkout limpio.
+- Validado en el servidor de pruebas (NeoForge 26.1.2, aarch64, puerto 25598): FML carga
+  el jar de 12,4 MB y las 9 librerías anidadas, el backend RocksDB se registra y el
+  servidor llega a `Done`. Sin coste de rendimiento: es solo contenido del paquete, el
+  código es idéntico.
+
 Upstream (Fabric): https://github.com/mircro-cortex/voxy by Cortex.
 License: All Rights Reserved (see `voxy-2612/LICENSE.md`).
 

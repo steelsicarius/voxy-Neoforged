@@ -23,9 +23,22 @@ Two adaptations were needed to embed the LWJGL natives jars through NeoForge's J
 
 - `lwjgl-lmdb-natives`  - liblwjgl_lmdb.so/.dll for linux x64, linux arm64, windows x64
 - `lwjgl-zstd-natives`  - liblwjgl_zstd.so/.dll for linux x64, linux arm64, windows x64
+- `rocksdbjni`           - upstream `org.rocksdb:rocksdbjni:10.2.1` repackaged without the
+  exotic-platform natives: only `librocksdbjni-linux64.so` and `librocksdbjni-win64.dll`
+  are kept (~9 MB instead of 72.8 MB), the exact same filter as upstream Fabric's
+  `makeExcludedRocksDB`. Classes and manifest are untouched, so the RocksDB backend
+  (voxy's default storage) behaves identically on win64/linux-x64. jarJar embeds this jar
+  by default because it resolves its configuration while building the task graph, before
+  any task could produce the file: the jar must exist on a fresh checkout, so it is
+  committed here. `./gradlew build -PincludeOtherArchs=true` embeds the full upstream jar
+  with every platform's natives instead (aarch64, musl, osx, ...).
 
 ## Regenerating
 
 When the LWJGL version changes, rebuild these jars by merging the new natives jars the
 same way (union of entries, single manifest, no `META-INF/INDEX.LIST`) and update the
 `jarJar` dependency versions in `build.gradle`.
+
+When the rocksdb version changes, run `./gradlew stripRocksdbNatives` (it repackages the
+upstream jar with the win64/linux-x64-only filter into
+`me/cortex/vojynatives/rocksdbjni/<version>/`) and commit the regenerated jar.
