@@ -1,0 +1,17 @@
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+    }
+}
+
+plugins {
+    id 'org.gradle.toolchains.foojay-resolver-convention' version '1.0.0'
+}
+
+rootProject.name = 'voxy-neoforge-multiversion'
+
+// Un subproyecto por version de Minecraft: cada uno conserva sus fuentes,
+// natives-repo y gradle.properties propios (cargado por su build.gradle).
+// Compilar las tres: ./gradlew build
+// Compilar una:        ./gradlew :voxy-26.2:build
+include 'voxy-26.1.2', 'voxy-26.2', 'voxy-26.3'

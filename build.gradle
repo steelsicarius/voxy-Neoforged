@@ -1,0 +1,12 @@
+// Monorepo multiversion del port de Voxy a NeoForge (26.1.2 / 26.2 / 26.3).
+//
+// En un multiproyecto Gradle solo el build raiz puede fijar versiones de plugins
+// externos: el plugin de NeoForge se fija AQUI una vez y los tres subproyectos lo
+// aplican sin version. Todos usan la misma version (verificarla al actualizar el MDK).
+plugins {
+    id 'net.neoforged.moddev' version '2.0.148' apply false
+}
+
+tasks.named('wrapper', Wrapper).configure {
+    distributionType = Wrapper.DistributionType.BIN
+}

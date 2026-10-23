@@ -1,17 +1,21 @@
 plugins {
+    // Multiproject: la version del plugin moddev se fija una sola vez en el
+    // build.gradle raiz; los subproyectos lo aplican sin version.
     id 'java-library'
     id 'maven-publish'
-    id 'net.neoforged.moddev' version '2.0.148'
+    id 'net.neoforged.moddev'
     id 'idea'
 }
 
-tasks.named('wrapper', Wrapper).configure {
-    // Define wrapper values here so as to not have to always do so when updating gradlew.properties.
-    // Switching this to Wrapper.DistributionType.ALL will download the full gradle sources that comes with
-    // documentation attached on cursor hover of gradle classes and methods. However, this comes with increased
-    // file size for Gradle. If you do switch this to ALL, run the Gradle wrapper task twice afterwards.
-    // (Verify by checking gradle/wrapper/gradle-wrapper.properties to see if distributionUrl now points to `-all`)
-    distributionType = Wrapper.DistributionType.BIN
+// En un multiproyecto Gradle solo auto-carga el gradle.properties del proyecto raiz:
+// cargar aqui el de este subproyecto explicitamente (las propiedades org.gradle.*
+// viven solo en el gradle.properties raiz).
+def subprojectProperties = new Properties()
+subprojectProperties.load(file('gradle.properties').newInputStream())
+subprojectProperties.each { key, value ->
+    if (!project.hasProperty(key)) {
+        project.ext.set(key, value)
+    }
 }
 
 version = mod_version
