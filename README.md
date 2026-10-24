@@ -21,26 +21,6 @@ con tres adaptaciones mínimas para vivir dentro de un multiproyecto Gradle:
 3. Sin `settings.gradle` ni wrapper anidados: el wrapper y el `settings.gradle` raíz
    son el único punto de entrada.
 
-## Uso
-
-```sh
-# Compilar las tres versiones (jars en voxy-26.X/build/libs/voxy-0.2.20-beta.jar)
-JAVA_HOME=/usr/java/jdk-25-oracle-aarch64 ./gradlew build
-
-# Compilar solo una
-./gradlew :voxy-26.2:build
-
-# Cliente/servidor de desarrollo de una versión
-./gradlew :voxy-26.1.2:runClient
-./gradlew :voxy-26.3:runServer
-
-# Jar con natives de rocksdb para TODAS las plataformas (ARM64, musl, osx, ...)
-./gradlew build -PincludeOtherArchs=true
-```
-
-Los jars producidos son **byte-idénticos** a los que producen las ramas standalone
-(verificado por MD5). Ver los `README.md` de cada subproyecto para el detalle del port,
-los mecanismos de ingesta de chunks y el recorte de natives de RocksDB (jar de ~12,4 MB).
 
 ## Sincronización con las ramas standalone
 
