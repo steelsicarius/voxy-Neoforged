@@ -1,4 +1,4 @@
-# Voxy NeoForge — monorepo multiversion
+# Voxy NeoForge — monorepo multiversion (NO OFICIAL)
 
 Port de [Voxy](https://github.com/mircro-cortex/voxy) (mod de render LoD de Fabric,
 de Cortex) a **NeoForge**, en un único multiproyecto Gradle con **tres subproyectos**,
